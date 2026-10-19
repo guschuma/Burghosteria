@@ -1,0 +1,29 @@
+{
+	"C_Cpp.codeAnalysis.clangTidy.checks.disabled": [
+		"modernize-use-using",
+		"modernize-avoid-c-arrays",
+		"performance-enum-size",
+		"modernize-use-trailing-return-type",
+		"portability-avoid-pragma-once",
+		"bugprone-throwing-static-initialization",
+		"modernize-avoid-c-style-cast",
+		"readability-uppercase-literal-suffix",
+		"bugprone-narrowing-conversions",
+		"readability-make-member-function-const",
+		"modernize-use-string-view",
+		"readability-inconsistent-ifelse-braces",
+		"readability-braces-around-statements",
+		"clang-analyzer-core.NullDereference",
+		"readability-magic-numbers",
+		"readability-convert-member-functions-to-static",
+		"modernize-macro-to-enum",
+		"bugprone-implicit-widening-of-multiplication-result",
+		"readability-math-missing-parentheses",
+		"clang-analyzer-security.ArrayBound",
+		"bugprone-easily-swappable-parameters",
+		"modernize-pass-by-value",
+		"performance-unnecessary-value-param",
+		"clang-analyzer-core.uninitialized.Assign",
+		"bugprone-derived-method-shadowing-base-method"
+	]
+}
