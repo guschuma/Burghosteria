@@ -12,7 +12,9 @@ void Button::update(){
 	is_being_hovered = CheckCollisionPointRec(cursor_pos(), bound);
 	current_color = is_being_hovered? hover_color : color;
 	current_color = is_held()? clicked_color : current_color;
+	
 	if(!is_held()) percentage_held = 0.0f;
+	if(is_blocked) {percentage_held = 1.0f;}
 }
 
 void Button::draw(){ // Assumindo que ja esta em texture ou render environment
@@ -53,9 +55,8 @@ Button_Matrix::Button_Matrix(Button base_button, Vector2 gap, Vector2 start_pos,
 		int line = i / col;
 		int colu = i % col;
 
-		
-		new_button_bound.x = base_button_bound.x + colu * (gap.x + base_button_bound.width); 
-		new_button_bound.y = base_button_bound.y + line * (gap.y + base_button_bound.height);
+		new_button_bound.x = start_pos.x + colu * (gap.x + base_button_bound.width); 
+		new_button_bound.y = start_pos.y + line * (gap.y + base_button_bound.height);
 		buttons[i] = new Button(new_button_bound, button_text, button_color, button_hover_color, button_click_color, text_offset);
 	}
 }
@@ -91,6 +92,20 @@ int Button_Matrix::id_of_button_released(){
 	}
 	return ERROR_CODE;
 }
+
+void Button_Matrix::set_origin(Vector2 new_origin){
+	start_pos = new_origin;
+	Rectangle base_button_bound = buttons[0]->get_bound();
+	for(int i = 0; i < lin * col; i++){
+		int line = i / col;
+		int colu = i % col;
+		Vector2 new_button_bound;
+		new_button_bound.x = new_origin.x + colu * (gap.x + base_button_bound.width); 
+		new_button_bound.y = new_origin.y + line * (gap.y + base_button_bound.height);
+		buttons[i]->set_origin(new_button_bound);
+	}
+}
+
 
 int Spell_Matrix::id_of_button_released(){
 	for(int i = 0; i < lin * col; i++){
@@ -136,6 +151,7 @@ void Spell_Matrix::set_text_value_at_ingred(int value, int ingred_id, int time_t
 		buttons[button_id]->set_text("0!");
 		return;
 	}
+	buttons[button_id]->is_blocked = time_till_expire == EMPTY_HEAP || value == 0;
 	
 	std::string new_text = std::to_string(value);
 	buttons[button_id]->set_text(new_text);

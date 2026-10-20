@@ -3,7 +3,7 @@
 
 #include "screens/gameplay.hpp"
 #include "global.hpp"
-
+#include <cstdlib> // Para random
 #include <iostream>
 
 void end_everything();
@@ -13,6 +13,7 @@ int main() {
 	SetTargetFPS(FPS);
 	initStart();
 	HideCursor();
+	srand(time(nullptr));
 
 	start_gameplay();
 

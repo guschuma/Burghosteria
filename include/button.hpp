@@ -20,9 +20,11 @@ public:
 	std::string get_text(){return text;};
 	int get_text_offset(){return text_offset_px;};
 	void set_text(std::string new_str){text = new_str; has_text = !new_str.empty();};
+	void set_origin(Vector2 new_origin){ bound.x = new_origin.x; bound.y = new_origin.y;}
 
 	float percentage_held = 0.0f; // Usado para itens com preparo. 1.0f = 100% segurado
 	Rectangle bound;
+	bool is_blocked = false;
 private:
 	
 	Color color, hover_color, clicked_color;
@@ -44,7 +46,11 @@ public:
 	void draw();
 	bool is_released(int ind);
 	int id_of_button_released();
+	void set_text_at_id(std::string new_text, int id_b) { if(id_b < lin * col && id_b >= 0) buttons[id_b]->set_text(new_text);}
 	int id_of_button_held();
+	void update_blocked(int id_b, bool is_it) { if(id_b < lin * col && id_b >= 0) buttons[id_b]->is_blocked = is_it;}
+
+	void set_origin(Vector2 new_origin);
 
 	//void update_percentage_held(float new_perc_held, int button_id);
 protected:

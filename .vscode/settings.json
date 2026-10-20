@@ -24,6 +24,8 @@
 		"modernize-pass-by-value",
 		"performance-unnecessary-value-param",
 		"clang-analyzer-core.uninitialized.Assign",
-		"bugprone-derived-method-shadowing-base-method"
+		"bugprone-derived-method-shadowing-base-method",
+		"bugprone-random-generator-seed",
+		"clang-analyzer-security.insecureAPI.rand"
 	]
 }

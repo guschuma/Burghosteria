@@ -3,8 +3,10 @@
 #include "button.hpp"
 #include <iostream>
 
+#include "screens/store.hpp"
+
 #include "raymath.h"
-Vector2 position = {0, 0};
+Vector2 position = {0, 0}; // Para debug
 Burger_Stack burger;
 
 /*case Burger_Stack::Ingredient::z: return "Pao"; 
@@ -34,26 +36,44 @@ int number_non_perish[3] = {0,0,0};
 void reset_numbers_food();
 
 int n_food_on_stock[12] = {0};
-
-double mili_seconds_passed = 0.0f; // Sempre entre zero e um
-
 Food_Heap meat_heap;
 Food_Heap eggs_heap;
 Food_Heap baco_heap;
 
+double mili_seconds_passed = 0.0f; // Sempre entre zero e um
+
+double time_till_shop = 0.0f;
+
+
+
 int player_money_cents = INITIAL_PLAYER_MONEY;
+
+Vector2 cursor_position; // Congelado quando no shop
 
 void draw_ui();
 void update_spell_button_logic();
 void increase_food_stock_based_on_time(double *time, int button_id);
 bool requires_prep(int ingred_id);
 void root_perish_food();
+void update_perish_food_values();
 
 bool can_be_placed_in_burger(int id_of_button_released);
 bool prep_stock_is_empty(int id_of_button_held);
 void update_gameplay(){
+	if(in_shop){
+		update_shop();
+		// Dont update the usual gameplay
+		return;
+	}
 	// Update itens pereciveis
 	mili_seconds_passed += GetFrameTime();
+	time_till_shop += GetFrameTime();
+	if(time_till_shop >= SHOP_TIME) {
+		time_till_shop = 0;
+		in_shop = true;
+		is_leaving_shop = false;
+		init_shop();
+	}
 	if(mili_seconds_passed >= 1) {
 		mili_seconds_passed = 0;
 		root_perish_food();
@@ -61,6 +81,7 @@ void update_gameplay(){
 
 	spells_matrix.update();
 	burger.update_falling_ingred();
+	cursor_position = cursor_pos();
 
 	// Debug square
 	if(IsKeyDown(KEY_UP)){
@@ -81,6 +102,12 @@ void update_gameplay(){
 	}
 	
 	update_spell_button_logic();
+
+	if(IsKeyPressed(KEY_SPACE)){
+		in_shop = true;
+		is_leaving_shop = false;
+		init_shop();
+	}
 }
 
 
@@ -89,9 +116,7 @@ void root_perish_food(){
 	eggs_heap.decrease_by_one();
 	baco_heap.decrease_by_one();
 
-	spells_matrix.set_text_value_at_ingred(meat_heap.get_current_size(), 12, meat_heap.get_root_value());
-	spells_matrix.set_text_value_at_ingred(eggs_heap.get_current_size(), 13, eggs_heap.get_root_value());
-	spells_matrix.set_text_value_at_ingred(baco_heap.get_current_size(), 14, baco_heap.get_root_value());
+	update_perish_food_values();
 }
 
 void draw_gameplay(){
@@ -105,7 +130,11 @@ void draw_gameplay(){
 		spells_matrix.draw();
 		if(time_prep_spell_held > 0) draw_ingred_being_summoned(id_of_previous_button_held, time_prep_spell_held);
 		draw_ui();
+		if(in_shop){
+			draw_shop();
+		}
 		draw_cursor();
+		
 	EndTextureMode();
 
 	
@@ -189,7 +218,7 @@ bool requires_prep(int ingred_id){
 }
 
 void draw_ingred_being_summoned(int ingred_id, float animation_time){
-	int ingred_height = cursor_pos().y - spawning_height * 0.5;
+	int ingred_height = cursor_position.y - spawning_height * 0.5;
 	Color color;
 	int ingred_vis_h;
 	ingred_properties((Burger_Stack::Ingredient)ingred_id, &color, &ingred_vis_h);
@@ -198,7 +227,7 @@ void draw_ingred_being_summoned(int ingred_id, float animation_time){
 	color = Fade(color, 4*(- animation_time*animation_time + animation_time));
 	float x_offset = 36 * cos(6 * PI * animation_time) * (1 - animation_time);
 	float y_offset = 24 * sin(6 * PI * animation_time) * (1 - animation_time);
-	DrawRectangleRounded((Rectangle){(float)(cursor_pos().x - ingred_width * 0.5) + x_offset,
+	DrawRectangleRounded((Rectangle){(float)(cursor_position.x - ingred_width * 0.5) + x_offset,
 									ingred_height + y_offset,
 									(float)ingred_width, 
 									(float)ingred_vis_h,}, 
@@ -210,7 +239,7 @@ void draw_ui(){
 							 std::to_string(player_money_cents / 100) + "." + 
 							 +   (player_money_cents % 100 < 10 ? "0" : "") +
 							 std::to_string(player_money_cents % 100);
-	draw_cool_text(player_money.c_str(), 2, 2, BLACK);
+	draw_cool_text(player_money.c_str(), 6, 2, BLACK);
 
 	// Desenha proximos elementos do heap de comida pereciveis
 	int text_size = 8;
@@ -224,6 +253,10 @@ void draw_ui(){
 		int baco_heap_value = baco_heap.get_id_value(i);
 		if(baco_heap_value != EMPTY_HEAP) draw_cool_text((std::to_string(baco_heap_value) + "s").c_str(), 182, 147 + text_size*(i + 1), BLACK);
 	}
+
+	// Shop time ui
+
+	DrawRectangleGradientV(0, INTERNAL_HEIGHT * (SHOP_TIME - time_till_shop) / SHOP_TIME, 4, INTERNAL_HEIGHT, GREEN, BLUE);
 
 }
 
@@ -338,6 +371,7 @@ void start_gameplay(){
 	}
 	//spells_matrix.reset_all_text();
 	player_money_cents = INITIAL_PLAYER_MONEY;
+	time_till_shop = 0.0f;
 }
 
 void end_gameplay(){
@@ -360,4 +394,22 @@ bool prep_stock_is_empty(int id_of_button_held){
 	if(id_of_button_held == 14) return baco_heap.is_empty();
 
 	return false;
+}
+
+void spell_matrix_update() {
+	spells_matrix.update();
+	for(int i = 0; i < 3; i++){
+		spells_matrix.set_text_value_at_ingred(n_food_on_stock[i], i);
+	}
+	update_perish_food_values(); 
+	for (int ingred_non_perish = 0; ingred_non_perish < 3; ingred_non_perish++)
+	{
+		spells_matrix.set_text_value_at_ingred(number_non_perish[ingred_non_perish], ingred_non_perish - 3);
+	}
+}
+
+void update_perish_food_values(){
+	spells_matrix.set_text_value_at_ingred(meat_heap.get_current_size(), 12, meat_heap.get_root_value());
+	spells_matrix.set_text_value_at_ingred(eggs_heap.get_current_size(), 13, eggs_heap.get_root_value());
+	spells_matrix.set_text_value_at_ingred(baco_heap.get_current_size(), 14, baco_heap.get_root_value());
 }

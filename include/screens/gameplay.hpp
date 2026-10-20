@@ -13,6 +13,8 @@
 
 #define INITIAL_PLAYER_MONEY 1000
 
+#define SHOP_TIME 45
+
 enum button_order {
 	CHEDDAR_PREP=-3,ONION_PREP, 	SWISS_PREP,
 	CHEDDAR,		ONION,			SWISS,
@@ -21,6 +23,13 @@ enum button_order {
 	MEAT,			EGG,			BACON,
 	MEAT_PREP,		EGG_PREP,		BACON_PREP,
 };
+
+extern int player_money_cents;
+
+extern int number_non_perish[3];
+extern Food_Heap meat_heap;
+extern Food_Heap eggs_heap;
+extern Food_Heap baco_heap;
 
 void start_gameplay();
 void end_gameplay();
@@ -33,3 +42,4 @@ void draw_burger();
 void ingred_properties(int ingred_id, Color *color, int *ingred_vis_h);
 void draw_ingred_being_summoned(int ingred_id, float animation_time); // Animation time is between zero and one
 
+void spell_matrix_update();
