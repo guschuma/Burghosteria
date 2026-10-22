@@ -26,6 +26,9 @@
 		"clang-analyzer-core.uninitialized.Assign",
 		"bugprone-derived-method-shadowing-base-method",
 		"bugprone-random-generator-seed",
-		"clang-analyzer-security.insecureAPI.rand"
+		"clang-analyzer-security.insecureAPI.rand",
+		"bugprone-exception-escape",
+		"modernize-use-auto",
+		"modernize-loop-convert"
 	]
 }

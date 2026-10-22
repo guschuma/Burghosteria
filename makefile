@@ -11,7 +11,7 @@ build_osx:
 	$(COMPILER) $(CXXFLAGS) $(CFILES) $(SOURCE_LIBS) -o $(OUTPUT) $(OSX_OPT)
 
 run: build_osx
-	./$(OUTPUT)
+	./$(OUTPUT) $(PEDIDOS) $(HIST)
 
 # Linux
 build_linux:
@@ -19,4 +19,4 @@ build_linux:
 	-lraylib -lGL -lm -lX11 -lpthread -ldl -lrt
 
 run_linux: build_linux
-	./bin/build_linux
+	./bin/build_linux $(PEDIDOS) $(HIST) 

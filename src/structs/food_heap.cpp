@@ -33,8 +33,6 @@ void Food_Heap::insert(int new_time_till_expire){
 		else break;
 	}	
 	this->current_size++;
-
-	this->print_heap();
 }
 
 bool is_power_of_two(int n){
@@ -94,6 +92,7 @@ void Food_Heap::remove_id(int node_id){
 	this->heap[node_id] = this->heap[this->current_size];
 
 	this->heapify(node_id);
+	this->print_heap();
 }
 
 int Food_Heap::get_current_size(){
