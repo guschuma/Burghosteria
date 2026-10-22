@@ -6,6 +6,7 @@
 
 #include "structs/history.hpp"
 #include "structs/avl_hash.hpp"
+#include "structs/queue.hpp"
 #include <string>
 #include <iostream>
 
@@ -34,6 +35,7 @@ int main(int argc, char *argv[]) {
 	//hist.print();
 	//hist.insert("teste", 21, true);
 	//hist.print();
+
 
 	InitWindow(WIDTH_SCREEN, HEIGHT_SCREEN, "Burghosteria!");
 	SetTargetFPS(FPS);
