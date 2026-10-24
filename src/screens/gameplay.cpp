@@ -2,12 +2,22 @@
 #include "global.hpp"
 #include "button.hpp"
 #include <iostream>
+#include "structs/queue.hpp"
 
 #include "screens/store.hpp"
 
 #include "raymath.h"
-Vector2 position = {0, 0}; // Para debug
+
+#define ORDER_X_POS 223
+#define ORDER_Y_POS 49
+#define ORDER_LINE_HEIGHT 10
+
+Vector2 position = {0, 0}; // Quadrado usado para debug
 Burger_Stack burger;
+Client_Queue ghosts;
+
+AVL_Hash avl;
+	
 
 /*case Burger_Stack::Ingredient::z: return "Pao"; 
 		case Burger_Stack::Ingredient::k: return "Ketchup";
@@ -35,12 +45,16 @@ bool ingred_is_being_summoned = false;
 int number_non_perish[3] = {0,0,0}; 
 void reset_numbers_food();
 
+int current_order_id;
+char current_order[MAX_LENGTH_RECIPE];
+float char_timer_recipe = 0.0f; // Time ate adicionar o proximo ingrediente na animacao rapida de nova receita
+
 int n_food_on_stock[12] = {0};
 Food_Heap meat_heap;
 Food_Heap eggs_heap;
 Food_Heap baco_heap;
 
-double mili_seconds_passed = 0.0f; // Sempre entre zero e um
+double second_passed = 0.0f; // Sempre entre zero e um
 
 double time_till_shop = 0.0f;
 
@@ -56,9 +70,13 @@ void increase_food_stock_based_on_time(double *time, int button_id);
 bool requires_prep(int ingred_id);
 void root_perish_food();
 void update_perish_food_values();
+void draw_order(int up_to_char);
+void update_order();
+
 
 bool can_be_placed_in_burger(int id_of_button_released);
 bool prep_stock_is_empty(int id_of_button_held);
+
 void update_gameplay(){
 	if(in_shop){
 		update_shop();
@@ -66,19 +84,24 @@ void update_gameplay(){
 		return;
 	}
 	// Update itens pereciveis
-	mili_seconds_passed += GetFrameTime();
+	second_passed += GetFrameTime();
 	time_till_shop += GetFrameTime();
+	char_timer_recipe += GetFrameTime();
 	if(time_till_shop >= SHOP_TIME) {
 		time_till_shop = 0;
 		in_shop = true;
 		is_leaving_shop = false;
 		init_shop();
 	}
-	if(mili_seconds_passed >= 1) {
-		mili_seconds_passed = 0;
+	if(second_passed >= 1) {
+		second_passed = 0;
 		root_perish_food();
+		ghosts.decrease_all_patience();
 	}
 
+	if(ghosts.update(second_passed) == QUEUE_MOVED){
+		update_order();
+	}
 	spells_matrix.update();
 	burger.update_falling_ingred();
 	cursor_position = cursor_pos();
@@ -99,6 +122,19 @@ void update_gameplay(){
 	if(IsKeyPressed(KEY_BACKSPACE)){
 		burger.remove_ingredient();
 		burger.print();
+	}
+	if(IsKeyPressed(KEY_ENTER)){
+		Burger_Stack burg_order;
+		for(char ingred_char : current_order){
+			burg_order.insert_ingredient(char_to_ingred(ingred_char));
+		}
+		bool is_correct = burger.is_identical(burg_order);
+
+		if(is_correct) ghosts.make_first_leave(HAPPY);
+		else ghosts.make_first_leave(ANGRY);
+
+		burger.clear();
+		burg_order.clear();
 	}
 	
 	update_spell_button_logic();
@@ -122,10 +158,12 @@ void root_perish_food(){
 void draw_gameplay(){
 	BeginTextureMode(pixelated_screen);
 		ClearBackground(RAYWHITE);
-		DrawRectangle(0, 37, 300, 180, LIGHTGRAY);
+		ghosts.draw();
+		DrawRectangle(0, 44, 300, 180, LIGHTGRAY); // Mesa temp.
 		//DrawRectangle(position.x, position.y, 1, 1, RED);
 		//std::cout << "x: " << position.x << "\ty:" << position.y << "\n";
 		draw_burger();
+		draw_order(char_timer_recipe * 6);
 
 		spells_matrix.draw();
 		if(time_prep_spell_held > 0) draw_ingred_being_summoned(id_of_previous_button_held, time_prep_spell_held);
@@ -240,6 +278,14 @@ void draw_ui(){
 							 +   (player_money_cents % 100 < 10 ? "0" : "") +
 							 std::to_string(player_money_cents % 100);
 	draw_cool_text(player_money.c_str(), 6, 2, BLACK);
+
+	int ghost_number = ghosts.get_number_of_invisible_ghosts();
+	if(ghost_number != 0) {
+		std::string queue_count = std::to_string(ghost_number);
+		queue_count = "+" + queue_count;
+		draw_cool_text(queue_count.c_str(), 103, 4, BLACK); // Numero em queue
+	}
+	
 
 	// Desenha proximos elementos do heap de comida pereciveis
 	int text_size = 8;
@@ -372,6 +418,10 @@ void start_gameplay(){
 	//spells_matrix.reset_all_text();
 	player_money_cents = INITIAL_PLAYER_MONEY;
 	time_till_shop = 0.0f;
+
+	ghosts.set_number_clients_round(10);
+	ghosts.print();
+	update_order();
 }
 
 void end_gameplay(){
@@ -412,4 +462,24 @@ void update_perish_food_values(){
 	spells_matrix.set_text_value_at_ingred(meat_heap.get_current_size(), 12, meat_heap.get_root_value());
 	spells_matrix.set_text_value_at_ingred(eggs_heap.get_current_size(), 13, eggs_heap.get_root_value());
 	spells_matrix.set_text_value_at_ingred(baco_heap.get_current_size(), 14, baco_heap.get_root_value());
+}
+
+void draw_order(int up_to_char){
+	if(current_order_id == -1) return;
+	draw_cool_text(("Pedido: " + std::to_string(current_order_id)).c_str(), ORDER_X_POS, ORDER_Y_POS, BLACK);
+	int cur_caracter = 0;
+	for(int i = 0; current_order[i] != '\0' && i < up_to_char; i++){
+		draw_cool_text((std::to_string(char_to_ingred(current_order[i]))).c_str(), ORDER_X_POS, ORDER_Y_POS + (MAX_LENGTH_RECIPE - cur_caracter) * ORDER_LINE_HEIGHT, BLACK); // TODO: mudar para mostarr nomes dos ingredientes
+		cur_caracter++;
+	}
+}
+
+void update_order(){
+	std::cout << "\n\nUpdated order!" << "\n";
+	current_order_id = ghosts.get_first_order_id();
+	if(current_order_id == -1) return;
+
+	strlcpy(current_order, avl.search(current_order_id), MAX_LENGTH_RECIPE);
+	std::cout << "Got order:" << current_order << "\n\n";
+	char_timer_recipe = -0.75f; // Demora um pouco para comecar a tocar a animacao da ordem
 }

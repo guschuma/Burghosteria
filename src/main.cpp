@@ -20,12 +20,13 @@ int main(int argc, char *argv[]) {
 	//std::string hist_name(argv[2]);
 	//hist_name = "bin/"+hist_name;
 
-	//std::string recipes_name(argv[1]);
-	//recipes_name = "bin/" + recipes_name;
-	//AVL_Hash avl;
-	//avl.recipes_file_name = recipes_name;
-	//avl.read_from_file();
+	std::string recipes_name(argv[1]);
+	recipes_name = "bin/" + recipes_name;
+
+	avl.recipes_file_name = recipes_name;
+	avl.read_from_file();
 	//avl.print();
+
 	//History hist;
 
 	//hist.history_file_name = hist_name;

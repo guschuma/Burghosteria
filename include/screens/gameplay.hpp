@@ -3,7 +3,7 @@
 
 #include "structs/burger_stack.hpp"
 #include "structs/food_heap.hpp"
-
+#include "structs/avl_hash.hpp"
 #define BOOK_COLOR (Color){252, 205, 79, 255}
 #define SELECTED_BOOK_COLOR (Color){233, 123, 33, 255}
 #define CLICKED_BOOK_COLOR (Color){207, 139, 27, 255}
@@ -30,6 +30,8 @@ extern int number_non_perish[3];
 extern Food_Heap meat_heap;
 extern Food_Heap eggs_heap;
 extern Food_Heap baco_heap;
+
+extern AVL_Hash avl;
 
 void start_gameplay();
 void end_gameplay();

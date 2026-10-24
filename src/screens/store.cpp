@@ -41,6 +41,10 @@ void init_shop(){
 	update_stock_at_id(1100, 5, 40);
 
 	for(int &n_bought : n_items_bought_this_time){ n_bought = 0;}
+
+	for(int i = 0; i < 6; i++) {
+		stock_buys.update_blocked(i, stock_prices_cents[i] > player_money_cents);
+	}
 }
 void update_shop(){
 	if(!is_leaving_shop) time_on_shop += GetFrameTime();

@@ -2,7 +2,7 @@
 
 #include "global.hpp"
 #include "raylib.h"
-
+#include <string>
 
 class Burger_Stack {
 public:
@@ -51,6 +51,8 @@ public:
 };
 
 Burger_Stack::Ingredient number_to_ingred(int num);
+Burger_Stack::Ingredient char_to_ingred(int cha);
+std::string ingred_to_string(Burger_Stack::Ingredient ing);
 
 extern const int ingred_tallness[12];
 extern const int ingred_vis_heig[12];

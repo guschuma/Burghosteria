@@ -49,7 +49,7 @@ void Burger_Stack::remove_ingredient(){
 	delete previous_top;
 }
 
-std::string string_ingredient(Burger_Stack::Ingredient ing){
+std::string ingred_to_string(Burger_Stack::Ingredient ing){
 	switch(ing){
 		case Burger_Stack::Ingredient::q: return "Queijo Cheddar";
 		case Burger_Stack::Ingredient::c: return "Cebola";
@@ -68,6 +68,7 @@ std::string string_ingredient(Burger_Stack::Ingredient ing){
 		default: return "Ingred. desconhecido";
 	}
 }
+
 void Burger_Stack::print() const{
 	Node* aux = this->top;
 	std::cout << "\n";
@@ -75,7 +76,7 @@ void Burger_Stack::print() const{
 	std::cout << "N:      " << this->number_ingred << "\n";
 	std::cout << "Altura: " << this->height << "\n\n";
 	while(aux != nullptr){
-		std::cout << string_ingredient(aux->ingred) << " \t- Alt: " << aux->height
+		std::cout << ingred_to_string(aux->ingred) << " \t- Alt: " << aux->height
 		<< "\t Des: " << aux->desired_height << "\t Vel.: " << aux->velocity << "\n";
 		aux = aux->next;
 	}
@@ -91,6 +92,9 @@ void Burger_Stack::clear(){
 		aux = next;
 	}
 	this->top = nullptr;
+	height = 0;
+	price = 0;
+	number_ingred = 0;
 }
 
 bool Burger_Stack::is_identical(const Burger_Stack &other_stack){
@@ -171,6 +175,25 @@ Burger_Stack::Ingredient number_to_ingred(int num){
 		case  9: return Burger_Stack::Ingredient::n;
 		case 10: return Burger_Stack::Ingredient::o;
 		case 11: return Burger_Stack::Ingredient::b;
+
+		default: return Burger_Stack::Ingredient::OFF_LIMITS;
+	}
+}
+
+Burger_Stack::Ingredient char_to_ingred(int cha){
+		switch(cha){
+		case 'q': return Burger_Stack::Ingredient::q;
+		case 'c': return Burger_Stack::Ingredient::c;
+		case 's': return Burger_Stack::Ingredient::s;
+		case 'z': return Burger_Stack::Ingredient::z;
+		case 'k': return Burger_Stack::Ingredient::k;
+		case 'm': return Burger_Stack::Ingredient::m;
+		case 'p': return Burger_Stack::Ingredient::p;
+		case 'a': return Burger_Stack::Ingredient::a;
+		case 't': return Burger_Stack::Ingredient::t;
+		case 'n': return Burger_Stack::Ingredient::n;
+		case 'o': return Burger_Stack::Ingredient::o;
+		case 'b': return Burger_Stack::Ingredient::b;
 
 		default: return Burger_Stack::Ingredient::OFF_LIMITS;
 	}
