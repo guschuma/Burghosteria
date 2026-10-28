@@ -104,17 +104,21 @@ const char* AVL_Hash::search(int id_code){
 		return hash_node->recipe;
 	} 
 
-	add_one_to_measure(MISSES_HASH);
-	Node_Hash *new_node = new Node_Hash;
-	if(hash_node->id != ERROR_CODE) { // ( 3 )
-		std::cout << "3." << "\n";
+	Node_Hash *new_node;
+	
+	if (hash_node->id == ERROR_CODE) {
+		new_node = hash_node;
+		add_one_to_measure(OCCUPIED_ENTRIES_HASH);
+	} else {
 		add_one_to_measure(NUM_COLLISIONS_HASH);
+		new_node = new Node_Hash;
 		hash_node->next = new_node;
 	}
 
 	new_node->next = nullptr;
 	new_node->id = id_code;
 
+	add_one_to_measure(MISSES_HASH);
 	add_one_to_measure(AVL_NUMBER_SEARCHES);
 	Timer tim;
 	timer_start(&tim);
@@ -123,11 +127,6 @@ const char* AVL_Hash::search(int id_code){
 	timer_end(&tim, TOTAL_TIME_SEARCH_AVL);
 	hash_number_elements++;
 
-	if(hash_node->id == ERROR_CODE) { // ( 2 )
-		std::cout << "2." << "\n";
-		add_one_to_measure(OCCUPIED_ENTRIES_HASH);
-		hash_table[hashed_id_code] = *new_node;
-	}
 	return new_node->recipe;
 }
 

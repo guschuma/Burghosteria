@@ -9,9 +9,9 @@
 #include "raymath.h"
 #include <cstring>
 
-#define ORDER_X_POS 223
-#define ORDER_Y_POS 49
-#define ORDER_LINE_HEIGHT 10
+#define ORDER_X_POS 222
+#define ORDER_Y_POS 40
+#define ORDER_LINE_HEIGHT 9
 
 Vector2 position = {0, 0}; // Quadrado usado para debug
 Burger_Stack burger;
@@ -189,7 +189,7 @@ void draw_burger(){
 	int cur_ingred_height;
 	Burger_Stack::Ingredient cur_ingred;
 
-	for(int pos = 0; pos < burger_num_ingred; pos++){
+	for(int pos = 0; pos < burger_num_ingred; pos++){ // TODO: Mudar para ser mais otimizado
 		burger.get_ingred_start_bottom(pos, &cur_ingred, &cur_ingred_height);
 
 		draw_ingredient(cur_ingred_height, cur_ingred);
@@ -470,8 +470,11 @@ void draw_order(int up_to_char){
 	draw_cool_text(("Pedido: " + std::to_string(current_order_id)).c_str(), ORDER_X_POS, ORDER_Y_POS, BLACK);
 	int cur_caracter = 0;
 	for(int i = 0; current_order[i] != '\0' && i < up_to_char; i++){
-		draw_cool_text((std::to_string(char_to_ingred(current_order[i]))).c_str(), ORDER_X_POS, ORDER_Y_POS + (MAX_LENGTH_RECIPE - cur_caracter) * ORDER_LINE_HEIGHT, BLACK); // TODO: mudar para mostarr nomes dos ingredientes
-		cur_caracter++;
+		draw_cool_text("serpente", ORDER_X_POS, ORDER_Y_POS + (2 * MAX_LENGTH_RECIPE - cur_caracter++ - 2) * ORDER_LINE_HEIGHT, BLACK); // TODO: mudar para mostarr nomes dos ingredientes
+		draw_cool_text("Carne de ", ORDER_X_POS, ORDER_Y_POS + (2 * MAX_LENGTH_RECIPE - cur_caracter++ - 2) * ORDER_LINE_HEIGHT, BLACK); // TODO: mudar para mostarr nomes dos ingredientes
+		
+		//draw_cool_text((std::to_string(char_to_ingred(current_order[i]))).c_str(), ORDER_X_POS, ORDER_Y_POS + (MAX_LENGTH_RECIPE - cur_caracter) * ORDER_LINE_HEIGHT, BLACK); // TODO: mudar para mostarr nomes dos ingredientes
+
 	}
 }
 

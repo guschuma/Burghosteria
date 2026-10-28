@@ -28,6 +28,11 @@ Emotion Client_Queue::dequeue(){
 	delete old_first;
 	number_visible_clients--;
 	number_actual_clients--;
+
+	if (first == nullptr) {
+		last = nullptr;
+	}
+
 	return first_emotion;
 }
 
