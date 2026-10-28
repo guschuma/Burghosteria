@@ -2,7 +2,7 @@
 #include "log_timer.hpp"
 #include <iostream>
 #include <fstream>
-
+#include <cstring>
 int hash_function(int num){ // Nao funciona para numeros negativos
 	return (num < 0)? ERROR_CODE : num % HASH_SIZE;
 }
@@ -11,7 +11,7 @@ AVL_Hash::AVL_Hash(){
 	for(Node_Hash &node : hash_table){
 		node.id = ERROR_CODE;
 		node.next = nullptr;
-		strlcpy(node.recipe, "Indef", MAX_LENGTH_RECIPE);
+		strcpy(node.recipe, "Indef");
 	}
 	set_measure(SIZE_TABLE_HASH, HASH_SIZE);
 }
@@ -119,7 +119,7 @@ const char* AVL_Hash::search(int id_code){
 	Timer tim;
 	timer_start(&tim);
 
-	strlcpy(new_node->recipe, search(id_code, root), MAX_LENGTH_RECIPE);
+	strcpy(new_node->recipe, search(id_code, root));
 	timer_end(&tim, TOTAL_TIME_SEARCH_AVL);
 	hash_number_elements++;
 
@@ -152,7 +152,7 @@ void AVL_Hash::insert(int id_code, const char *recipe){
 AVL_Hash::Node* AVL_Hash::insert(int id_code, const char *recipe, Node *t_root){
 	if(t_root == nullptr){
 		Node *new_node_ptr = new Node;
-		strlcpy(new_node_ptr->recipe, recipe, MAX_LENGTH_RECIPE);
+		strcpy(new_node_ptr->recipe, recipe);
 		new_node_ptr->id = id_code;
 		new_node_ptr->left = nullptr;
 		new_node_ptr->right = nullptr;

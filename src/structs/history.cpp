@@ -37,7 +37,7 @@ void History::insert(const char *new_name, int new_score, bool insert_in_file){ 
 	}
 	Node &new_node = cont_list[current_size];
 
-	strlcpy(new_node.name, new_name, MAX_NAME_SIZE);
+	strcpy(new_node.name, new_name);
     new_node.score = new_score;
 
 	current_size++;

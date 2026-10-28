@@ -7,6 +7,7 @@
 #include "screens/store.hpp"
 
 #include "raymath.h"
+#include <cstring>
 
 #define ORDER_X_POS 223
 #define ORDER_Y_POS 49
@@ -479,7 +480,7 @@ void update_order(){
 	current_order_id = ghosts.get_first_order_id();
 	if(current_order_id == -1) return;
 
-	strlcpy(current_order, avl.search(current_order_id), MAX_LENGTH_RECIPE);
+	strcpy(current_order, avl.search(current_order_id));
 	std::cout << "Got order:" << current_order << "\n\n";
 	char_timer_recipe = -0.75f; // Demora um pouco para comecar a tocar a animacao da ordem
 }
