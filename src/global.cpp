@@ -5,6 +5,16 @@ RenderTexture2D pixelated_screen;
 Screen current_screen;
 
 Font pixelify_sans;
+bool is_camera_shaking = false; // Defined in global.cpp, atualizado em gameplay.cpp
+bool should_update_camera_shake = false; // Divide frequencia em dois
+Vector2 camera_shake = Vector2Zero();
+
+const char *characters =
+	"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	"abcdefghijklmnopqrstuvwxyz"
+	"0123456789"
+	" !\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~"
+	"àáâãçéêíóôõú";
 
 
 void initStart(){
@@ -13,7 +23,7 @@ void initStart(){
 	SetTextureFilter(pixelated_screen.texture, TEXTURE_FILTER_POINT); // for crisp pixelart *chef kiss* :)
  
 	const int FONT_SIZE = 99;
-	const int GLYPH_COUNT = 95;
+
 
 	unsigned int file_size = 0;
 
@@ -24,28 +34,31 @@ void initStart(){
     );
 
 	pixelify_sans.baseSize = FONT_SIZE;
-	pixelify_sans.glyphCount = GLYPH_COUNT;
-
+	int glyph_count;
+	int *codepoints = LoadCodepoints(characters, &glyph_count);
+	pixelify_sans.glyphCount = glyph_count;
 	pixelify_sans.glyphs = LoadFontData(
-		file_data,
+	file_data,
 		file_size,
 		FONT_SIZE,
-		nullptr,
-		GLYPH_COUNT,
+		codepoints,
+		glyph_count,
 		FONT_BITMAP
 	);
+
+	UnloadCodepoints(codepoints);
 
 	Image atlas = GenImageFontAtlas(
 		pixelify_sans.glyphs,
 		&pixelify_sans.recs,
-		GLYPH_COUNT,
+		glyph_count,
 		FONT_SIZE,
 		1,
 		0
 	);
 
 	pixelify_sans.texture = LoadTextureFromImage(atlas);
-
+	
 	SetTextureFilter(
 		pixelify_sans.texture,
 		TEXTURE_FILTER_POINT
@@ -59,6 +72,11 @@ void initStart(){
 void draw_pixelated_screen(RenderTexture2D render_screen){
 	BeginDrawing();
 	ClearBackground(BLACK);
+	should_update_camera_shake = !should_update_camera_shake;
+	if(is_camera_shaking && should_update_camera_shake) {
+		camera_shake.x = rand() % 3 - 1;
+		camera_shake.y = rand() % 3 - 1;
+	}
 	DrawTexturePro(
 		render_screen.texture,
 		{ 0, 0,
@@ -71,6 +89,7 @@ void draw_pixelated_screen(RenderTexture2D render_screen){
 		0.0f,
 		WHITE
 	);
+	DrawRectangleLinesEx({0, 0, WIDTH_SCREEN, HEIGHT_SCREEN}, 4, P_DARK);
     EndDrawing();
 }
 
@@ -79,7 +98,12 @@ Vector2 cursor_pos(){
 }
 
 void draw_cursor(){
-	DrawRectangleV(cursor_pos(), (Vector2){1, 1}, BLACK);
+	Vector2 c_pos = cursor_pos();
+	c_pos.x = (int)c_pos.x;
+	c_pos.y = (int)c_pos.y;
+	DrawRectangle(c_pos.x - 1, c_pos.y, 3, 1, P_DARK_TEAL); // TODO: bem feio, talvez melhorar depois?
+	DrawRectangle(c_pos.x, c_pos.y - 1, 1, 3, P_DARK_TEAL);
+	DrawRectangleV(c_pos, (Vector2){1, 1}, P_TEAL);
 }
 
 void draw_cool_text(const char *text, float x_pos, float y_pos, Color tint, int font_size){ // Ira converter x e y para coordenadas inteiras

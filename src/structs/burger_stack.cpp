@@ -2,6 +2,9 @@
 #include <iostream>
 #include "log_timer.hpp"
 #include "global.hpp"
+
+#define INGRED_VIS_H 25
+#define INGRED_VIS_W 60
 //    _______________                     __
 //   |               |					    |
 //   |===============|  -.					|-> ingred_vis_heig
@@ -15,17 +18,20 @@
 //           v
 //     ingred_width
 
-const int ingred_tallness[12] = {10,10,10,15,12,17,12,13,11,12,11,10};
-const int ingred_vis_heig[12] = {13,10,14,17,13,17,14,13,15,15,12,11};
+const int ingred_tallness[12] = {10,10,8,15,10,8,12,10,11,10,9,10};
+const int ingred_vis_heig[12] = {13,10,14,17,13,17,14,13,15,15,12,11}; // TODO: Deletar isso aqui
 
       int burger_middle_x = 48;
 const int burger_bottom_y = 160;
-const int ingred_width = 40;
+const int ingred_width = 60;
 const int spawning_height = 70;
 const float ingred_falling_accel = 4.0f;
 
+Texture2D ingred_sprites;
+Texture2D bottom_bread;
+
 void Burger_Stack::insert_ingredient(Burger_Stack::Ingredient ingred){
-	if(ingred == Ingredient::OFF_LIMITS) return;
+	if(ingred == Ingredient::OFF_LIMITS || in_anim) return;
 	Node* new_node = new Node;
 	new_node->ingred = ingred;
 	new_node->next = this->top;
@@ -142,6 +148,110 @@ void Burger_Stack::update_falling_ingred(){
 	}
 }
 
+void Burger_Stack::start_burger_leaving_anim(float initial_time){
+	in_anim = true;
+	anim_timer = initial_time;
+}
+
+void Burger_Stack::update(){
+	update_falling_ingred();
+	if(!in_anim) return;
+	anim_timer += GetFrameTime();
+
+	if(anim_timer >= 1){
+		anim_timer = 1;
+		in_anim = false;
+	}
+	if(number_ingred != 0 && anim_timer > 0.5f) clear();
+	burger_middle_x = 48 + 400 * anim_timer * (anim_timer - 1);
+	
+}
+
+void Burger_Stack::draw(){	
+	// Desenha prato
+	DrawEllipse(burger_middle_x, burger_bottom_y, ingred_width, ingred_width * 0.5, P_PURPLE_DARK);
+
+	// Pao de baixo
+	DrawTexture(bottom_bread, burger_middle_x  - INGRED_VIS_W * 0.5f, burger_bottom_y - INGRED_VIS_H + 7, WHITE);
+
+	Node* offscreen_node = top;
+	int offscreen_pos = 0;
+	while(offscreen_node != nullptr && offscreen_node->height > burger_bottom_y){
+		offscreen_node = offscreen_node->next;
+		offscreen_pos++;
+	}
+	// Aux agora aponta pro primeiro ingrediente visivel
+
+	int current_ingred_height;
+	Ingredient cur_ingred;
+	for(int pos = number_ingred - 1; pos >= offscreen_pos; pos--){
+		Node* cur_node = offscreen_node;
+
+		for(int i = 0; i < pos - offscreen_pos; i++){
+			cur_node = cur_node->next;
+		}
+
+		draw_ingredient(cur_node->height, cur_node->ingred);
+
+		if(cur_node->height > burger_bottom_y) { // Fora da tela
+			break;
+		}
+	}
+}
+
+void draw_ingredient(int height, Burger_Stack::Ingredient ingred){
+	Rectangle source = (Rectangle){(float) INGRED_VIS_W * (int)ingred, 0, INGRED_VIS_W, INGRED_VIS_H};
+	Vector2 pos = (Vector2){burger_middle_x - INGRED_VIS_W * 0.5f, (float)burger_bottom_y - (INGRED_VIS_H + height)};
+
+	DrawTextureRec(ingred_sprites, source, pos, WHITE);
+}
+
+void draw_ingredient_at(int ingred_id, int x_pos, int y_pos, float fade){
+	Rectangle source = (Rectangle){(float) INGRED_VIS_W * ingred_id, 0, INGRED_VIS_W, INGRED_VIS_H};
+	Vector2 pos = (Vector2){(float)x_pos, (float)y_pos};
+
+	Color fade_color = (Color){255, (unsigned char)(255 * fade), 255, (unsigned char)(255 * fade)};
+	DrawTextureRec(ingred_sprites, source, pos, fade_color);
+}
+
+void ingred_properties(int ingred_id, Color *color, int *ingred_vis_h){  // TODO: deletar isso
+	switch(ingred_id){
+		case -3:
+		case Burger_Stack::Ingredient::q: *color = WHITE;	break;
+		case -2:
+		case Burger_Stack::Ingredient::c: *color = PURPLE;	break;
+		case -1:
+		case Burger_Stack::Ingredient::s: *color = YELLOW;	break;
+		case Burger_Stack::Ingredient::z: *color = ORANGE; 	break;
+		case Burger_Stack::Ingredient::k: *color = RED;		break;
+		case Burger_Stack::Ingredient::m: *color = YELLOW;	break;
+		case Burger_Stack::Ingredient::p: *color = GREEN;	break;
+		case Burger_Stack::Ingredient::a: *color = LIME;	break;
+		case Burger_Stack::Ingredient::t: *color = RED;		break;
+		case 12:
+		case Burger_Stack::Ingredient::n: *color = PINK;	break; 
+		case 13:
+		case Burger_Stack::Ingredient::o: *color = WHITE;	break;
+		case 14:
+		case Burger_Stack::Ingredient::b: *color = RED;		break;
+		default: *color = BLACK;
+	}
+	if(ingred_id >= -3 && ingred_id <= -1) {
+		*ingred_vis_h = ingred_vis_heig[ingred_id + 3];
+		return;
+	}
+	if(ingred_id >= 12 && ingred_id <= 14) {
+		*ingred_vis_h = ingred_vis_heig[ingred_id - 3];
+		return;
+	}
+	if(ingred_id == ERROR_CODE) {
+		*ingred_vis_h = 1;  // Invalid
+		return;
+	}
+	*ingred_vis_h = ingred_vis_heig[ingred_id];
+}
+
+
 int Burger_Stack::ingredient_price(Burger_Stack::Ingredient ingred) const{
 	switch(ingred){
 		case Burger_Stack::Ingredient::q: return 80;
@@ -197,4 +307,34 @@ Burger_Stack::Ingredient char_to_ingred(int cha){
 
 		default: return Burger_Stack::Ingredient::OFF_LIMITS;
 	}
+}
+
+std::string ingred_to_name(Burger_Stack::Ingredient ingred, bool first){ // espaços servem para alinhar fonte à matriz de pixel
+	switch(ingred){
+		case Burger_Stack::Ingredient::q: return first? "Asa de"      : " morcego";
+		case Burger_Stack::Ingredient::c: return first? "Olho de"     : "  aranha";
+		case Burger_Stack::Ingredient::s: return first? " Gosma de"   : "slime";
+
+		case Burger_Stack::Ingredient::z: return first? ""            : "Pão";
+		case Burger_Stack::Ingredient::k: return first? " Sangue de"  : " cthulu";
+		case Burger_Stack::Ingredient::m: return first? "  Lágrimas de": "sereia";
+		case Burger_Stack::Ingredient::p: return first? " Dente de"   : " alho";
+		case Burger_Stack::Ingredient::a: return first? "Molho de"    : "  lava";
+		case Burger_Stack::Ingredient::t: return first? " Cogumelo do": " pântano";
+		
+		case Burger_Stack::Ingredient::n: return first? " Carne de"   : "    serpente";
+		case Burger_Stack::Ingredient::o: return first? " Ovo de"     : " dragão";
+		case Burger_Stack::Ingredient::b: return first? " Cabelo de"  : " unicórnio";
+		default: return "Ingred. desconhecido";
+	}
+}
+
+void Burger_Stack::init_ingred_sprites(){
+	ingred_sprites = LoadTexture("assets/sprites/ingred.png");
+	bottom_bread = LoadTexture("assets/sprites/bottom_bread.png");
+}
+
+void Burger_Stack::unload_sprites(){
+	UnloadTexture(ingred_sprites);
+	UnloadTexture(bottom_bread);
 }

@@ -1,5 +1,5 @@
 COMPILER = g++
-CXXFLAGS = -std=c++11 -g
+CXXFLAGS = -std=c++11
 SOURCE_LIBS = -Ilib/ -Iinclude
 CFILES = src/*.cpp src/screens/*.cpp src/structs/*.cpp
 

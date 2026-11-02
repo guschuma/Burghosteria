@@ -106,10 +106,10 @@ const char* AVL_Hash::search(int id_code){
 
 	Node_Hash *new_node;
 	
-	if (hash_node->id == ERROR_CODE) {
+	if (hash_node->id == ERROR_CODE) { // ( 2 )
 		new_node = hash_node;
 		add_one_to_measure(OCCUPIED_ENTRIES_HASH);
-	} else {
+	} else { // ( 3 )
 		add_one_to_measure(NUM_COLLISIONS_HASH);
 		new_node = new Node_Hash;
 		hash_node->next = new_node;

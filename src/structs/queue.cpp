@@ -11,11 +11,15 @@
 #define QUEUE_Y_POS 3
 
 #define GHOST_WIDTH 36		// Nao contando gap entre fantasmas, que eh 2
-#define GHOST_HEIGHT 42
+#define GHOST_HEIGHT 48
 
 #define LEAVING_POS (Vector2){400, -40}
 #define TIME_ADDED_GHOST_PATIENCE 25.0
+
+#define NUMBER_UNIQUE_GHOST_SPRITES 3 // Necessario mudar tambem enum
 // https://www.inf.ufrgs.br/~dgbalreira/ed/aula9b/index.html
+
+Texture2D ghost_sprites;
 
 Emotion Client_Queue::dequeue(){
 	if(first == nullptr) {
@@ -26,8 +30,9 @@ Emotion Client_Queue::dequeue(){
 	Node *old_first = first;
 	first = first->next;
 	delete old_first;
-	number_visible_clients--;
-	number_actual_clients--;
+
+	number_visible_clients = std::max(--number_visible_clients, 0);
+	number_actual_clients = std::max(--number_actual_clients, 0);
 
 	if (first == nullptr) {
 		last = nullptr;
@@ -55,10 +60,12 @@ void Client_Queue::queue_rando(){ // Aumenta o numero de fantasmas visiveis
 	new_last->anim_state = NORMAL;
 	new_last->emotion = NEUTRAL;
 
+	new_last->sprite = (Ghost_Sprites)(new_last->order_id % NUMBER_UNIQUE_GHOST_SPRITES);
+
 	number_visible_clients++;
 }
 
-void Client_Queue::set_number_clients_round(int number_clients) { 
+void Client_Queue::set_number_clients_round(int number_clients) {  // So seta se numero de clientes atual for 0
 	if(number_actual_clients != 0) return; 
 	number_actual_clients = number_clients;
 
@@ -100,8 +107,8 @@ Status_Queue Client_Queue::update(float second_passed){ // Second passed usado p
 		update_if_reached_destination(aux, number_queue);
 		
 		Node* next_aux = aux->next;
-		if(aux->current_pos.x > INTERNAL_WIDTH) { // Fantasma completamente saiu
-			remove_first_ghost(aux, number_queue);
+		if(aux->current_pos.x > INTERNAL_WIDTH) { // primeiro fantasma completamente saiu
+			remove_first_ghost(number_queue);
 			status_queue = QUEUE_MOVED;
 		}
 		
@@ -112,7 +119,7 @@ Status_Queue Client_Queue::update(float second_passed){ // Second passed usado p
 			return status_queue;
 		}
 	}
-	if(number_queue == 0 && get_number_of_invisible_ghosts() != 0) {
+	if((number_queue == 0  || status_queue == QUEUE_MOVED) && get_number_of_invisible_ghosts() != 0) {
 		queue_rando();
 	}
 	return status_queue;
@@ -143,14 +150,15 @@ void Client_Queue::draw(){
 		Vector2 ghost_pos = aux->current_pos;
 
 		// Desenhando fantasma
-		Color ghost_color = (aux->emotion == ANGRY)? RED : GREEN;
-		ghost_color = (aux->emotion == HAPPY)? YELLOW : ghost_color;
-		DrawRectangleRounded((Rectangle){(float)(int)ghost_pos.x, (float)(int)ghost_pos.y, GHOST_WIDTH, GHOST_HEIGHT}, 0.8, 12, ghost_color);
+		//Color ghost_color = (aux->emotion == ANGRY)? P_RED : P_OLIVE;
+		//ghost_color = (aux->emotion == HAPPY)? P_YELLOW : ghost_color;
+		//DrawRectangleRounded((Rectangle){(float)(int)ghost_pos.x, (float)(int)ghost_pos.y, GHOST_WIDTH, GHOST_HEIGHT}, 0.8, 12, ghost_color);
+		DrawTextureRec(ghost_sprites, {((float)GHOST_WIDTH) * (aux->emotion + 3 * aux->sprite), 0, GHOST_WIDTH, GHOST_HEIGHT}, ghost_pos, WHITE);
 
 		// Desenhando paciencia
-		DrawRectangle(ghost_pos.x + 1, QUEUE_Y_POS + 0.95 * GHOST_WIDTH, GHOST_WIDTH - 2, 3, LIGHTGRAY);
+		DrawRectangle(ghost_pos.x + 1, 1, GHOST_WIDTH - 2, 3, P_MAUVE);
 
-		DrawRectangle(ghost_pos.x + 1, QUEUE_Y_POS + 0.95 * GHOST_WIDTH + 1, (1 - aux->patience / (float)MAX_GHOST_PATIENCE) * (GHOST_WIDTH - 2), 1, RED);
+		DrawRectangle(ghost_pos.x + 1, 2, (1 - aux->patience / (float)MAX_GHOST_PATIENCE) * (GHOST_WIDTH - 2), 1, P_RED);
 		aux = aux->next;
 		
 		number_queue++;
@@ -175,22 +183,38 @@ void Client_Queue::update_if_reached_destination(Node *aux, int number_queue){
 	}
 }
 
-Emotion Client_Queue::remove_first_ghost(Node *aux, int number_queue){
-	if(aux->next != nullptr){
-		aux->next->anim_state = ENTERING;
-		aux->next->desired_pos.x = (float)INTERNAL_WIDTH - (number_queue + 1) * (2 + GHOST_WIDTH);
+Emotion Client_Queue::remove_first_ghost(int number_queue){
+	if(first->next != nullptr){
+		first->next->anim_state = ENTERING;
+		first->next->desired_pos.x = (float)INTERNAL_WIDTH - (number_queue + 1) * (2 + GHOST_WIDTH);
 	}
 	
 	return dequeue();
 }
 
 int Client_Queue::get_first_order_id(){
+	print();
 	if(first == nullptr) return -1;
 	return first->order_id;
 }
 
 void Client_Queue::make_first_leave(Emotion emotion){
+	if(first == nullptr) return;
 	first->anim_state = LEAVING;
 	first->emotion = emotion;
 	first->desired_pos = LEAVING_POS;
+}
+
+void Client_Queue::clear(){
+	while(number_visible_clients != 0){
+		dequeue();
+	}
+	number_actual_clients = 0;
+}
+
+void init_ghost_sprites(){
+	ghost_sprites = LoadTexture("assets/sprites/ghosts.png");
+}
+void end_ghost_sprites(){
+	UnloadTexture(ghost_sprites);
 }

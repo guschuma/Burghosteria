@@ -4,9 +4,10 @@
 #include "structs/burger_stack.hpp"
 #include "structs/food_heap.hpp"
 #include "structs/avl_hash.hpp"
-#define BOOK_COLOR (Color){252, 205, 79, 255}
-#define SELECTED_BOOK_COLOR (Color){233, 123, 33, 255}
-#define CLICKED_BOOK_COLOR (Color){207, 139, 27, 255}
+#include "global.hpp"
+#define BOOK_COLOR TRANSPARENT
+#define SELECTED_BOOK_COLOR (Color){233, 123, 33, 50}
+#define CLICKED_BOOK_COLOR (Color){207, 139, 27, 50}
 
 #define START_NUM_FOOD_STOCK 10
 #define START_NUM_NON_PERISH_NOT_PREP 5
@@ -33,15 +34,19 @@ extern Food_Heap baco_heap;
 
 extern AVL_Hash avl;
 
-void start_gameplay();
+void init_gameplay();
 void end_gameplay();
 void update_gameplay();
 
 void draw_gameplay();
-void draw_ingredient(int height, Burger_Stack::Ingredient ingred);
+
 void draw_burger();
 
-void ingred_properties(int ingred_id, Color *color, int *ingred_vis_h);
+
 void draw_ingred_being_summoned(int ingred_id, float animation_time); // Animation time is between zero and one
 
 void spell_matrix_update();
+
+
+void init_sprites_gameplay();
+void end_sprites_gameplay();

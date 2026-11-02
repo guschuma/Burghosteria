@@ -3,7 +3,7 @@
 #include "raylib.h"
 
 enum Ghost_Sprites {
-	a1, a2, a3,
+	a1 = 0, a2, a3,
 };
 
 enum Animation_State{
@@ -42,7 +42,7 @@ private:
 public:
 	void queue_rando();
 	Emotion dequeue();
-	Emotion remove_first_ghost(Node *aux, int number_queue);
+	Emotion remove_first_ghost(int number_queue);
 	void print();
 	Status_Queue update(float second_passed);
 	void draw();
@@ -56,4 +56,9 @@ public:
 	void make_first_leave(Emotion emotion);
 
 	int get_number_of_invisible_ghosts() { return number_actual_clients - number_visible_clients + (int)(number_visible_clients > 5);} // number_visible_clients inclui fantasma invisivel, ironicamente
+
+	void clear();
 };
+
+void init_ghost_sprites();
+void end_ghost_sprites();

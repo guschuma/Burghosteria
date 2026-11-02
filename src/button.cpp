@@ -20,7 +20,10 @@ void Button::update(){
 void Button::draw(){ // Assumindo que ja esta em texture ou render environment
 	DrawRectangleRec(bound, current_color);
 	if(has_text) {
-		draw_cool_text(text.c_str(), bound.x + bound.width * 0.5 + text_offset_px, bound.y - 1, BLACK);
+		const char *text_arr = text.c_str();
+		draw_cool_text(text_arr, bound.x + bound.width * 0.5 + text_offset_px + 1, bound.y, P_WINE);
+		draw_cool_text(text_arr, bound.x + bound.width * 0.5 + text_offset_px, bound.y, P_WINE);
+		draw_cool_text(text_arr, bound.x + bound.width * 0.5 + text_offset_px, bound.y - 1, P_CREAM);
 	}
 	if(percentage_held != 0.0f){
 		float shadow_box_h =  bound.height * percentage_held;

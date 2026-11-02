@@ -10,3 +10,6 @@ extern bool is_leaving_shop;
 void update_shop();
 void draw_shop();
 void init_shop();
+
+void init_sprites_shop();
+void end_sprites_shop();

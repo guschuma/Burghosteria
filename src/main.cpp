@@ -14,11 +14,11 @@ void end_everything();
 
 int main(int argc, char *argv[]) { 
 	if(argc < 3){
-		fprintf(stderr, " Uso: %s PEDIDOS=<pedidos> HIST=<historico>\n" , argv[0]) ;
+		fprintf(stderr, "Comando invalido\nUso: %s PEDIDOS=<pedidos> HIST=<historico>\n" , argv[0]) ;
 		return -1;
 	}
-	//std::string hist_name(argv[2]);
-	//hist_name = "bin/"+hist_name;
+	std::string hist_name(argv[2]);
+	hist_name = "bin/"+hist_name;
 
 	std::string recipes_name(argv[1]);
 	recipes_name = "bin/" + recipes_name;
@@ -27,11 +27,11 @@ int main(int argc, char *argv[]) {
 	avl.read_from_file();
 	//avl.print();
 
-	//History hist;
+	History hist;
 
-	//hist.history_file_name = hist_name;
-	//hist.read_from_file();
-	//hist.sort();
+	hist.history_file_name = hist_name;
+	hist.read_from_file();
+	hist.sort();
 	
 	//hist.print();
 	//hist.insert("teste", 21, true);
@@ -44,7 +44,9 @@ int main(int argc, char *argv[]) {
 	HideCursor();
 	srand(time(nullptr));
 
-	start_gameplay();
+	init_sprites_gameplay();
+
+	init_gameplay();
 
 	while (!WindowShouldClose()) {
 		// Event Handling + Update
@@ -74,4 +76,6 @@ int main(int argc, char *argv[]) {
 
 void end_everything(){
 	end_gameplay();
+
+	end_sprites_gameplay();
 }

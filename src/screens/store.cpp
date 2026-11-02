@@ -11,15 +11,20 @@ bool in_shop = false;
 bool is_leaving_shop = false;
 
 #define MAX_PRICE_VARIATION_PERC 0.3 // para cima ou para baixo
+#define WITCH_DEST (Vector2){150, 40}
 
 Vector2 buttons_origin;
 Vector2 buttons_leave_dest = {-245, -83};
-Vector2 buttons_come_dest = {10, 60};
-Vector2 buttons_velocity = {0, 0};
-Button shop_button((Rectangle){10, 60, 80, 40}, "teste", WHITE, GRAY, GRAY, -39);
+Vector2 buttons_come_dest = {10, 30};
+
+Button shop_button((Rectangle){10, 60, 76, 30}, "teste", P_DARK, P_PURPLE_DARK, P_PURPLE, -36);
 
 Button_Matrix stock_buys(shop_button, (Vector2){2, 2}, buttons_origin, 2, 3);
 Vector2 position_deb = {0, 0};
+
+Texture2D shop_witch;
+Vector2 witch_pos = {300, 0};
+
 
 int stock_prices_cents[6] = {0,0,0,0,0,0};
 int n_items_bought_this_time[6] = {0,0,0,0,0,0};
@@ -28,17 +33,18 @@ void update_stock_at_id(int price_cents, int id_stock, int time_to_expire = -1);
 int generate_random_price(int base_price, int id_stock = -1);
 void shop_button_interaction();
 void init_shop(){
-	player_money_cents = 1000;
 	buttons_origin = buttons_leave_dest;
 	stock_buys.set_origin(buttons_origin);
-	buttons_velocity = {0, 0};
+
 	update_stock_at_id(200, 0);
 	update_stock_at_id(300, 1);
 	update_stock_at_id(400, 2);
 
 	update_stock_at_id(500, 3, 40);
 	update_stock_at_id(300, 4, 40);
-	update_stock_at_id(1100, 5, 40);
+	update_stock_at_id(400, 5, 40);
+
+	witch_pos = {200, 190};
 
 	for(int &n_bought : n_items_bought_this_time){ n_bought = 0;}
 
@@ -50,9 +56,17 @@ void update_shop(){
 	if(!is_leaving_shop) time_on_shop += GetFrameTime();
 	Vector2 destination = is_leaving_shop? buttons_leave_dest : buttons_come_dest;
 	destination.y += 2 * cos(0.5 * PI * time_on_shop); // Flutuante
-	buttons_velocity = Vector2Subtract(destination, buttons_origin);
+	Vector2 buttons_velocity = Vector2Subtract(destination, buttons_origin);
 	buttons_velocity = Vector2Scale(buttons_velocity, 3* GetFrameTime());
 	buttons_origin = Vector2Add(buttons_origin, buttons_velocity);
+
+	Vector2 witch_dest = is_leaving_shop? (Vector2){200, 190} : WITCH_DEST;
+	witch_dest.y += 2 * cos(0.25 * PI * time_on_shop);
+	Vector2 witch_velocity = Vector2Subtract(witch_dest, witch_pos);
+	witch_velocity = Vector2Scale(witch_velocity, 3 * GetFrameTime());
+	witch_pos = Vector2Add(witch_pos, witch_velocity);
+
+
 	stock_buys.set_origin(buttons_origin);
 	if(shop_entering_anim_time < 1.0f && !is_leaving_shop){
 		shop_entering_anim_time += 2 * GetFrameTime();
@@ -77,6 +91,10 @@ void update_shop(){
 	if(IsKeyDown(KEY_RIGHT)){
 		position_deb.x += 0.5;
 	}
+	if(IsKeyPressed(KEY_ENTER)){ // Enter para sair do shop
+		time_on_shop = 0.0f;
+		is_leaving_shop = true;
+	}
 	
 	if(time_on_shop >= IN_SHOP_TIME){
 		time_on_shop = 0.0f;
@@ -93,6 +111,10 @@ void draw_shop(){
 	DrawRectangle(position_deb.x, position_deb.y, 1, 1, RED);
 	//std::cout << position_deb.x << " : " << position_deb.y << "\n";
 	stock_buys.draw();
+
+	int witch_anim_frame = (int)(2 * time_on_shop) % 4;
+	Rectangle witch_rec = {(float)witch_anim_frame * 150, 0, 150, 180};
+	DrawTextureRec(shop_witch, witch_rec, witch_pos, WHITE);
 	// Shop time ui tempo acaba
 	DrawRectangleGradientV(0, INTERNAL_HEIGHT * (IN_SHOP_TIME - time_on_shop) / IN_SHOP_TIME, 4, INTERNAL_HEIGHT, BLUE, PURPLE);
 }
@@ -159,15 +181,15 @@ void shop_button_interaction(){
 		
 
 		case 3: meat_heap.insert(expiration_stock[0]);
-		update_stock_at_id(500, 3, 40); 
+		update_stock_at_id(500, 3, 80); 
 		
 		break; 
 		case 4: eggs_heap.insert(expiration_stock[1]);
-		update_stock_at_id(300, 4, 40); 
+		update_stock_at_id(300, 4, 80); 
 		
 		break;
 		case 5: baco_heap.insert(expiration_stock[2]);
-		update_stock_at_id(1100, 5, 40); 
+		update_stock_at_id(1100, 5, 80); 
 		break;
 		default: return;
 	}
@@ -180,4 +202,13 @@ void shop_button_interaction(){
 	}
 
 	spell_matrix_update();
+}
+
+
+void init_sprites_shop(){
+	shop_witch = LoadTexture("assets/sprites/shop_witch.png");
+}
+
+void end_sprites_shop(){
+	UnloadTexture(shop_witch);
 }

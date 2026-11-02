@@ -92,7 +92,6 @@ void Food_Heap::remove_id(int node_id){
 	this->heap[node_id] = this->heap[this->current_size];
 
 	this->heapify(node_id);
-	this->print_heap();
 }
 
 int Food_Heap::get_current_size(){

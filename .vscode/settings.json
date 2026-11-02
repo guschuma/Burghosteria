@@ -29,6 +29,8 @@
 		"clang-analyzer-security.insecureAPI.rand",
 		"bugprone-exception-escape",
 		"modernize-use-auto",
-		"modernize-loop-convert"
+		"modernize-loop-convert",
+		"clang-analyzer-security.insecureAPI.strcpy",
+		"readability-identifier-length"
 	]
 }
