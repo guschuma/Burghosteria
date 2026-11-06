@@ -107,6 +107,7 @@ Texture2D FX_Queue::fx_to_texture(FX fx){
 		case summoning: return summoning_t;
 		case remove_fx: return remove_t;
 		case red_spawn: return red_spawn_t;
+		default: return summoning_t;
 	}
 }
 

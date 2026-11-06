@@ -44,7 +44,7 @@ public:
 	Emotion dequeue();
 	Emotion remove_first_ghost(int number_queue);
 	void print();
-	Status_Queue update(float second_passed);
+	Status_Queue update(float second_passed, Emotion &first_ghost_emotion);
 	void draw();
 	void decrease_all_patience();
 

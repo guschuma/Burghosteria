@@ -8,6 +8,7 @@ const int INTERNAL_WIDTH = 300;
 const int INTERNAL_HEIGHT = 180;
 
 constexpr int FPS = 60;
+extern bool should_leave_game;
 
 extern bool is_camera_shaking; // Talvez nao usado
 
@@ -44,13 +45,15 @@ enum class Screen {
 
 
 extern RenderTexture2D pixelated_screen;
+extern RenderTexture2D circle_anim;
 extern Screen current_screen;
 
 extern Font pixelify_sans;
 
 void initStart();
 
-void draw_pixelated_screen(RenderTexture2D render_screen);
+void draw_pixelated_screen(RenderTexture2D render_screen, bool is_leaving_or_entering);
 void draw_cursor();
 void draw_cool_text(const char *text, float x_pos, float y_pos, Color tint, int font_size = 13);
+void draw_circle_anim(float radius_size, Vector2 center_pos = (Vector2){INTERNAL_WIDTH * 0.5, INTERNAL_HEIGHT * 0.5});
 Vector2 cursor_pos(); // Em tamanho interno (320 x 180)

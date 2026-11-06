@@ -16,7 +16,7 @@
 #define ORDER_LINE_HEIGHT 9
 #define RECIPE_WIDTH 160 // Tamanho visual da caixa ("papel") da ordem
 
-Vector2 position = {0, 0}; // Quadrado usado para debug
+
 Burger_Stack burger;
 Client_Queue ghosts;
 
@@ -77,6 +77,11 @@ double time_till_shop = 0.0f;
 
 
 int player_money_cents = INITIAL_PLAYER_MONEY;
+int player_lifes;
+
+bool should_exit_gameplay = false;
+double leaving_anim_timer = 0.0f;
+
 
 Vector2 cursor_position; // Congelado quando no shop
 
@@ -98,6 +103,68 @@ bool prep_stock_is_empty(int id_of_button_held);
 
 void draw_cool_text_with_outline(const char *text, float x_pos, float y_pos, Color tint, int font_size = 13);
 
+
+
+void init_gameplay(){
+	player_money_cents = 1000;
+	player_lifes = 3;
+	should_exit_gameplay = false;
+	leaving_anim_timer = 0.0f; // TODO: Adicionar animacao de entrada
+	
+	reset_numbers_food();
+	for(int i = 15; i <= 17; i++){
+		spells_matrix.change_height(i, 35);
+	}
+	//spells_matrix.reset_all_text();
+	player_money_cents = INITIAL_PLAYER_MONEY;
+	time_till_shop = 0.0f;
+	char_timer_recipe = -0.75f;
+	current_order_id = -1;
+	time_on_same_ingred = 0.0f;
+	in_middle_of_spawning_ingred = false;
+	timer_till_ingred_spawn = 0.0f;
+	
+
+	ghosts.clear();
+
+	ghosts.set_number_clients_round(10);
+	update_order();
+}
+
+void init_sprites_gameplay(){
+	recipe_book = LoadTexture("assets/sprites/recipe_book.png");
+	table = LoadTexture("assets/sprites/table.png");
+	background = LoadTexture("assets/sprites/background.png");
+	lamp = LoadTexture("assets/sprites/lamp.png");
+	burger.init_ingred_sprites();
+	red_spawn_fx = LoadTexture("assets/sprites/fx/red_spawn.png");
+	init_ghost_sprites();
+	fx_queue.load();
+	init_sprites_shop();
+}
+
+void end_gameplay(){
+	burger.clear();
+	ghosts.clear();
+	fx_queue.clear();
+	meat_heap.terminate();
+	eggs_heap.terminate();
+	baco_heap.terminate();
+	end_ghost_sprites();
+	end_sprites_shop();
+}
+
+void end_sprites_gameplay(){
+	UnloadTexture(recipe_book);
+	UnloadTexture(table);
+	UnloadTexture(background);
+	UnloadTexture(lamp);
+	UnloadTexture(red_spawn_fx);
+	burger.unload_sprites();
+	fx_queue.unload();
+}
+
+
 void update_gameplay(){
 	is_camera_shaking = false;
 	if(in_shop){
@@ -105,6 +172,16 @@ void update_gameplay(){
 		// Dont update the usual gameplay
 		return;
 	}
+	if(should_exit_gameplay){
+		leaving_anim_timer += GetFrameTime();
+		if(leaving_anim_timer >= 1) {
+			current_screen = Screen::START_MENU;
+			leaving_anim_timer = 1;
+		}
+
+		return;
+	}
+
 	// Update itens pereciveis
 	second_passed += GetFrameTime();
 	time_till_shop += GetFrameTime();
@@ -131,27 +208,21 @@ void update_gameplay(){
 		root_perish_food();
 		ghosts.decrease_all_patience();
 	}
-
-	if(ghosts.update(second_passed) == QUEUE_MOVED){
+	Emotion first_ghost_emotion;
+	if(ghosts.update(second_passed, first_ghost_emotion) == QUEUE_MOVED){
 		update_order();
+		if(first_ghost_emotion == ANGRY) {
+			player_lifes--;
+			std::cout << "Player lost life! Current: " << player_lifes << "\n\n";
+			should_exit_gameplay = (player_lifes == 0)? true : false;
+			
+		}
+
 	}
 	spells_matrix.update();
 	fx_queue.update();
 	cursor_position = cursor_pos();
 
-	// Debug square
-	if(IsKeyDown(KEY_UP)){
-		position.y -= 0.5;
-	}
-	if(IsKeyDown(KEY_DOWN)){
-		position.y += 0.5;
-	}
-	if(IsKeyDown(KEY_LEFT)){
-		position.x -= 0.5;
-	}
-	if(IsKeyDown(KEY_RIGHT)){
-		position.x += 0.5;
-	}
 	if(IsKeyPressed(KEY_BACKSPACE)){
 		fx_queue.insert(remove_fx, {(float)burger_middle_x, burger_bottom_y - burger.get_first_height() - 30});
 		burger.remove_ingredient();
@@ -195,6 +266,9 @@ void root_perish_food(){
 }
 
 void draw_gameplay(){
+	if(should_exit_gameplay) draw_circle_anim(1 - leaving_anim_timer);
+	else draw_circle_anim(1);
+
 	BeginTextureMode(pixelated_screen);
 		ClearBackground(RAYWHITE);
 		DrawTexture(background, 0, 0, WHITE);
@@ -202,15 +276,12 @@ void draw_gameplay(){
 		DrawTexture(table, 0, 0, WHITE);
 		int lamp_anim_frame = (int)(second_passed * 4.0) % 2; // Zero ou um
 		DrawTextureRec(lamp, {60.0f * lamp_anim_frame, 0, 60, 100}, {0, 40}, WHITE);
-		//DrawRectangle(position.x, position.y, 1, 1, RED);
-		//std::cout << "x: " << position.x << "\ty:" << position.y << "\n";
+
 		burger.draw();
 
 		DrawTexture(recipe_book, 0, 0, WHITE); // Desenha sprite do livro aberto
 
 		draw_order();
-
-		
 
 		spells_matrix.draw();
 		if(time_prep_spell_held > 0) draw_ingred_being_summoned(id_of_previous_button_held, time_prep_spell_held);
@@ -219,12 +290,14 @@ void draw_gameplay(){
 		if(in_shop){
 			draw_shop();
 		}
+		
 		draw_cursor();
 		
 	EndTextureMode();
 
 	
-	draw_pixelated_screen(pixelated_screen);
+	draw_pixelated_screen(pixelated_screen, should_exit_gameplay);
+	
 	
 }
 
@@ -314,7 +387,10 @@ void reset_numbers_food(){ // Includes reseting spells_matrix
 		n_food_on_stock[ingred_id] = START_NUM_FOOD_STOCK;
 		spells_matrix.set_text_value_at_ingred(START_NUM_FOOD_STOCK, ingred_id);
 	}
-	
+	meat_heap.terminate();
+	eggs_heap.terminate();
+	baco_heap.terminate();
+
 	meat_heap.initialize();
 	eggs_heap.initialize();
 	baco_heap.initialize();
@@ -414,57 +490,6 @@ void increase_food_stock_based_on_time(double *time, int button_id){
 	}
 }
 
-void init_gameplay(){
-	player_money_cents = 1000;
-	reset_numbers_food();
-	for(int i = 15; i <= 17; i++){
-		spells_matrix.change_height(i, 35);
-	}
-	//spells_matrix.reset_all_text();
-	player_money_cents = INITIAL_PLAYER_MONEY;
-	time_till_shop = 0.0f;
-	char_timer_recipe = -0.75f;
-	current_order_id = -1;
-	time_on_same_ingred = 0.0f;
-	in_middle_of_spawning_ingred = false;
-	timer_till_ingred_spawn = 0.0f;
-
-	ghosts.set_number_clients_round(10);
-	update_order();
-}
-
-void init_sprites_gameplay(){
-	recipe_book = LoadTexture("assets/sprites/recipe_book.png");
-	table = LoadTexture("assets/sprites/table.png");
-	background = LoadTexture("assets/sprites/background.png");
-	lamp = LoadTexture("assets/sprites/lamp.png");
-	burger.init_ingred_sprites();
-	red_spawn_fx = LoadTexture("assets/sprites/fx/red_spawn.png");
-	init_ghost_sprites();
-	fx_queue.load();
-	init_sprites_shop();
-}
-
-void end_gameplay(){
-	burger.clear();
-	ghosts.clear();
-	fx_queue.clear();
-	meat_heap.terminate();
-	eggs_heap.terminate();
-	baco_heap.terminate();
-	end_ghost_sprites();
-	end_sprites_shop();
-}
-
-void end_sprites_gameplay(){
-	UnloadTexture(recipe_book);
-	UnloadTexture(table);
-	UnloadTexture(background);
-	UnloadTexture(lamp);
-	UnloadTexture(red_spawn_fx);
-	burger.unload_sprites();
-	fx_queue.unload();
-}
 
 // Comida pode ser colocada no burguer se for um ingrediente de estoque infinito OU eh estoque finito com quantidade nao nula
 bool can_be_placed_in_burger(int id_of_button_released){

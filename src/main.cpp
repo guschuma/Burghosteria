@@ -2,6 +2,7 @@
 #include "raymath.h"
 
 #include "screens/gameplay.hpp"
+#include "screens/menu.hpp"
 #include "global.hpp"
 
 #include "structs/history.hpp"
@@ -18,7 +19,7 @@ int main(int argc, char *argv[]) {
 		return -1;
 	}
 	std::string hist_name(argv[2]);
-	hist_name = "bin/"+hist_name;
+	hist_name = "bin/" + hist_name;
 
 	std::string recipes_name(argv[1]);
 	recipes_name = "bin/" + recipes_name;
@@ -45,16 +46,17 @@ int main(int argc, char *argv[]) {
 	srand(time(nullptr));
 
 	init_sprites_gameplay();
-
+	init_menu();
 	init_gameplay();
 
-	while (!WindowShouldClose()) {
+	while (!WindowShouldClose() && !should_leave_game) {
 		// Event Handling + Update
 		switch (current_screen) {
 			case Screen::GAMEPLAY:
 				update_gameplay();
 				break;
 			case Screen::START_MENU:
+				update_menu();
 				break;
 		}
 		// Drawing 
@@ -64,6 +66,7 @@ int main(int argc, char *argv[]) {
 				
 				break;
 			case Screen::START_MENU:
+				draw_menu();
 				break;
 		}
 	}
@@ -78,4 +81,6 @@ void end_everything(){
 	end_gameplay();
 
 	end_sprites_gameplay();
+	UnloadRenderTexture(pixelated_screen);
+	UnloadFont(pixelify_sans);
 }

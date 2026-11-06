@@ -2,13 +2,15 @@
 #include "raymath.h"
 
 RenderTexture2D pixelated_screen;
+
+RenderTexture2D circle_anim;
 Screen current_screen;
 
 Font pixelify_sans;
 bool is_camera_shaking = false; // Defined in global.cpp, atualizado em gameplay.cpp
 bool should_update_camera_shake = false; // Divide frequencia em dois
 Vector2 camera_shake = Vector2Zero();
-
+bool should_leave_game = false;
 const char *characters =
 	"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	"abcdefghijklmnopqrstuvwxyz"
@@ -19,7 +21,8 @@ const char *characters =
 
 void initStart(){
 	pixelated_screen = LoadRenderTexture(INTERNAL_WIDTH, INTERNAL_HEIGHT);
-	current_screen = Screen::GAMEPLAY;
+	circle_anim = LoadRenderTexture(INTERNAL_WIDTH, INTERNAL_HEIGHT);
+	current_screen = Screen::START_MENU;
 	SetTextureFilter(pixelated_screen.texture, TEXTURE_FILTER_POINT); // for crisp pixelart *chef kiss* :)
  
 	const int FONT_SIZE = 99;
@@ -69,7 +72,7 @@ void initStart(){
 }
 
 
-void draw_pixelated_screen(RenderTexture2D render_screen){
+void draw_pixelated_screen(RenderTexture2D render_screen, bool is_leaving_or_entering){
 	BeginDrawing();
 	ClearBackground(BLACK);
 	should_update_camera_shake = !should_update_camera_shake;
@@ -90,6 +93,21 @@ void draw_pixelated_screen(RenderTexture2D render_screen){
 		WHITE
 	);
 	DrawRectangleLinesEx({0, 0, WIDTH_SCREEN, HEIGHT_SCREEN}, 4, P_DARK);
+	if(is_leaving_or_entering){
+		DrawTexturePro(
+		circle_anim.texture,
+		{ 0, 0,
+			(float)render_screen.texture.width,
+			-(float)render_screen.texture.height, },
+		{ 0, 0,
+			(float)WIDTH_SCREEN,
+			(float)HEIGHT_SCREEN, },
+		{ 0, 0 },
+		0.0f,
+		WHITE
+	);
+	}
+	
     EndDrawing();
 }
 
@@ -108,4 +126,21 @@ void draw_cursor(){
 
 void draw_cool_text(const char *text, float x_pos, float y_pos, Color tint, int font_size){ // Ira converter x e y para coordenadas inteiras
 	DrawTextEx(pixelify_sans, text, (Vector2){((float)(int)x_pos), (float)(int)y_pos}, font_size, 0, tint);
+}
+
+void draw_circle_anim(float radius_size, Vector2 center_pos){ // Raio do circulo vai de 0 a 1
+	if(radius_size == 1){ // Nao desenhe animacao
+		BeginTextureMode(circle_anim);
+		EndTextureMode();
+		return;
+	}
+	// Circle transition
+	radius_size *= radius_size * INTERNAL_WIDTH; // Makes it more smooth and slower (quadratic)
+	BeginTextureMode(circle_anim);
+	ClearBackground(P_DARK);
+	
+	BeginBlendMode(BLEND_SUBTRACT_COLORS);
+	DrawCircleV(center_pos, radius_size, WHITE);
+	EndBlendMode();
+	EndTextureMode();
 }

@@ -85,7 +85,7 @@ void Client_Queue::print(){
 	std::cout << "\n\n";
 }
 
-Status_Queue Client_Queue::update(float second_passed){ // Second passed usado para animacao do fantasma flutuando
+Status_Queue Client_Queue::update(float second_passed, Emotion &first_ghost_emotion){ // Second passed usado para animacao do fantasma flutuando
 	Status_Queue status_queue = NOTHING;
 	Node *aux = first;
 	int number_queue = 0;
@@ -93,6 +93,7 @@ Status_Queue Client_Queue::update(float second_passed){ // Second passed usado p
 	//if(second_passed == 0.0f) {
 	//	print();
 	//}
+	first_ghost_emotion = NEUTRAL;
 	while(aux != nullptr){
 		if(aux->anim_state == NORMAL) aux->desired_pos.y = QUEUE_Y_POS + 10 * sin(-number_queue + 2 * PI * second_passed);
 		if(aux->emotion == ANGRY) { // Fantasma chacoalhando de raiva
@@ -108,7 +109,7 @@ Status_Queue Client_Queue::update(float second_passed){ // Second passed usado p
 		
 		Node* next_aux = aux->next;
 		if(aux->current_pos.x > INTERNAL_WIDTH) { // primeiro fantasma completamente saiu
-			remove_first_ghost(number_queue);
+			first_ghost_emotion = remove_first_ghost(number_queue);
 			status_queue = QUEUE_MOVED;
 		}
 		
