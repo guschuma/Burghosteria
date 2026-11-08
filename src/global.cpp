@@ -1,6 +1,7 @@
 #include "global.hpp"
 #include "raymath.h"
 
+
 RenderTexture2D pixelated_screen;
 
 RenderTexture2D circle_anim;
@@ -11,6 +12,14 @@ bool is_camera_shaking = false; // Defined in global.cpp, atualizado em gameplay
 bool should_update_camera_shake = false; // Divide frequencia em dois
 Vector2 camera_shake = Vector2Zero();
 bool should_leave_game = false;
+int current_score = 0;
+float total_menu_time = 0.0f;
+Vector2 background_pos = Vector2Zero();
+Vector2 background_dest = Vector2Zero();
+Texture2D background;
+
+FX_Queue fx_queue;
+
 const char *characters =
 	"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	"abcdefghijklmnopqrstuvwxyz"
@@ -80,9 +89,10 @@ void draw_pixelated_screen(RenderTexture2D render_screen, bool is_leaving_or_ent
 		camera_shake.x = rand() % 3 - 1;
 		camera_shake.y = rand() % 3 - 1;
 	}
+	else camera_shake = Vector2Zero();
 	DrawTexturePro(
 		render_screen.texture,
-		{ 0, 0,
+		{ camera_shake.x, camera_shake.y,
 			(float)render_screen.texture.width,
 			-(float)render_screen.texture.height, },
 		{ 0, 0,
@@ -143,4 +153,27 @@ void draw_circle_anim(float radius_size, Vector2 center_pos){ // Raio do circulo
 	DrawCircleV(center_pos, radius_size, WHITE);
 	EndBlendMode();
 	EndTextureMode();
+}
+
+void draw_cool_text_with_outline(const char *text, float x_pos, float y_pos, Color tint, int font_size){
+	draw_cool_text(text, x_pos + 1, y_pos, P_WINE, font_size);
+	draw_cool_text(text, x_pos + 1, y_pos + 1, P_WINE, font_size);
+	draw_cool_text(text, x_pos, y_pos, tint, font_size);
+}
+
+void update_background_pos(){ // Only updates y position
+	float y_velocity = background_dest.y - background_pos.y;
+	background_pos.y += y_velocity * GetFrameTime();
+}
+
+void draw_background(){
+	DrawTexture(background, background_pos.x, background_pos.y, WHITE);
+
+	if(background_pos.x > 0) {
+		DrawTexture(background, background_pos.x - INTERNAL_WIDTH, background_pos.y, WHITE);
+	}
+
+	if(background_pos.x < 0) {
+		DrawTexture(background, background_pos.x + INTERNAL_WIDTH, background_pos.y, WHITE);
+	}
 }

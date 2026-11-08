@@ -6,6 +6,8 @@ enum FX {
 	summoning,
 	remove_fx,
 	red_spawn,
+	correct,
+	wrong,
 };
 
 class FX_Queue{
@@ -30,6 +32,8 @@ private:
 	Texture2D summoning_t;
 	Texture2D remove_t;
 	Texture2D red_spawn_t;
+	Texture2D correct_t;
+	Texture2D wrong_t;
 public:
 	void load();
 	void unload();

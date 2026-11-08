@@ -31,6 +31,7 @@
 		"modernize-use-auto",
 		"modernize-loop-convert",
 		"clang-analyzer-security.insecureAPI.strcpy",
-		"readability-identifier-length"
+		"readability-identifier-length",
+		"bugprone-integer-division"
 	]
 }

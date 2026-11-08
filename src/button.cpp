@@ -3,18 +3,24 @@
 #include <iostream>
 
 #include "global.hpp"
+#include "sound.hpp"
 
 Button::Button(Rectangle bound, std::string text, Color normal_color, Color hover_color, Color clicked_color, int text_offset_px)
     : bound(bound), text(text), color(normal_color), hover_color(hover_color), clicked_color(clicked_color), text_offset_px(text_offset_px) {
 	if(!text.empty()) has_text = true; 
 }
 void Button::update(){
+	bool was_being_hovered = is_being_hovered;
 	is_being_hovered = CheckCollisionPointRec(cursor_pos(), bound);
+	Color old_color = current_color;
 	current_color = is_being_hovered? hover_color : color;
-	current_color = is_held()? clicked_color : current_color;
+	bool is_held_b = is_held();
+	current_color = is_held_b? clicked_color : current_color;
 	
-	if(!is_held()) percentage_held = 0.0f;
+	if(!is_held_b) percentage_held = 0.0f;
 	if(is_blocked) {percentage_held = 1.0f;}
+
+	if(is_being_hovered && !was_being_hovered) play_sound(button_select_s);
 }
 
 void Button::draw(){ // Assumindo que ja esta em texture ou render environment
@@ -28,6 +34,10 @@ void Button::draw(){ // Assumindo que ja esta em texture ou render environment
 	if(percentage_held != 0.0f){
 		float shadow_box_h =  bound.height * percentage_held;
 		DrawRectangleRec((Rectangle){bound.x, bound.y + bound.height - shadow_box_h, bound.width, shadow_box_h}, (Color){0, 0, 0, 30});
+
+		if(percentage_held != 1.0f){
+			play_charge_in_pitch(2 + 3 * percentage_held);
+		}
 	}
 }
 
@@ -73,10 +83,14 @@ Button_Matrix::~Button_Matrix(){
 }
 
 void Button_Matrix::update(){
+	bool is_one_b_held = false;
 	for(int i = 0; i < lin * col; i++){
 		buttons[i]->update();
+		is_one_b_held |= buttons[i]->is_held();
 	}
-
+	if(is_one_b_held && (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) || IsMouseButtonPressed(MOUSE_BUTTON_RIGHT))){
+		play_sound(button_click_s);
+	}
 }
 
 void Button_Matrix::draw(){
@@ -160,7 +174,7 @@ void Spell_Matrix::set_text_value_at_ingred(int value, int ingred_id, int time_t
 	buttons[button_id]->set_text(new_text);
 }
 
-void Spell_Matrix::change_height(int button_id, int new_height){
+void Button_Matrix::change_height(int button_id, int new_height){
 	buttons[button_id]->bound.height = new_height;
 }
 

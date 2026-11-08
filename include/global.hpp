@@ -1,5 +1,9 @@
 #pragma once // Inclua esse header apenas uma vez
 #include "raylib.h"
+
+
+#include "structs/fx_queue.hpp"
+
 // Actual resolution 300 x 180
 constexpr int WIDTH_SCREEN = 1200;
 constexpr int HEIGHT_SCREEN = 720;
@@ -12,12 +16,22 @@ extern bool should_leave_game;
 
 extern bool is_camera_shaking; // Talvez nao usado
 
+extern int current_score;
+extern Vector2 background_pos; // Usado em todas as telas exceto gameplay
+extern Vector2 background_dest;
+extern float total_menu_time; // Zera quando entra gameplay, usado em animacoes do menu
+
+extern Texture2D background; // carregado em gameplay.cpp
+
+extern FX_Queue fx_queue; // Carregado sprites e unloaded em gameplay.cpp. Definido em global.cpp
 #define ERROR_CODE (int)(-4)
 #define EMPTY_HEAP (int)(-10)
 
 enum class Screen {
     GAMEPLAY,
 	START_MENU,
+	DEFEAT,
+	SCORE,
 };
 
 // Definicao de cores
@@ -57,3 +71,6 @@ void draw_cursor();
 void draw_cool_text(const char *text, float x_pos, float y_pos, Color tint, int font_size = 13);
 void draw_circle_anim(float radius_size, Vector2 center_pos = (Vector2){INTERNAL_WIDTH * 0.5, INTERNAL_HEIGHT * 0.5});
 Vector2 cursor_pos(); // Em tamanho interno (320 x 180)
+void draw_cool_text_with_outline(const char *text, float x_pos, float y_pos, Color tint, int font_size = 13);
+void update_background_pos();
+void draw_background();

@@ -131,9 +131,10 @@ const char* AVL_Hash::search(int id_code){
 }
 
 const char* AVL_Hash::search(int id_code, Node *root_t){
-	add_one_to_measure(AVL_NUMBER_COMPS); // Considerei tudo isso como uma unica comparacao
 	if(root_t == nullptr) return nullptr;
+	add_one_to_measure(AVL_NUMBER_COMPS);
 	if(root_t->id == id_code) return root_t->recipe;
+	add_one_to_measure(AVL_NUMBER_COMPS);
 	if(id_code < root_t->id) return search(id_code, root_t->left);
 	return search(id_code, root_t->right);
 }

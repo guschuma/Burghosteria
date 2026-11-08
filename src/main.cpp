@@ -3,7 +3,10 @@
 
 #include "screens/gameplay.hpp"
 #include "screens/menu.hpp"
+#include "screens/defeat.hpp"
+#include "screens/score.hpp"
 #include "global.hpp"
+#include "sound.hpp"
 
 #include "structs/history.hpp"
 #include "structs/avl_hash.hpp"
@@ -31,12 +34,12 @@ int main(int argc, char *argv[]) {
 	History hist;
 
 	hist.history_file_name = hist_name;
-	hist.read_from_file();
-	hist.sort();
 	
-	//hist.print();
-	//hist.insert("teste", 21, true);
-	//hist.print();
+
+	SetConfigFlags(FLAG_MSAA_4X_HINT); // Colocar isso para evitar ruídos MUITO ALTOs e infrequentes
+	SetAudioStreamBufferSizeDefault(4096);          // e isso 
+	InitAudioDevice();
+
 
 
 	InitWindow(WIDTH_SCREEN, HEIGHT_SCREEN, "Burghosteria!");
@@ -48,8 +51,12 @@ int main(int argc, char *argv[]) {
 	init_sprites_gameplay();
 	init_menu();
 	init_gameplay();
+	init_score(hist);
+
+	load_music_and_sound();
 
 	while (!WindowShouldClose() && !should_leave_game) {
+		Screen old_screen = current_screen;
 		// Event Handling + Update
 		switch (current_screen) {
 			case Screen::GAMEPLAY:
@@ -58,17 +65,33 @@ int main(int argc, char *argv[]) {
 			case Screen::START_MENU:
 				update_menu();
 				break;
+			case Screen::DEFEAT:
+				update_defeat(hist);
+				break;
+			case Screen::SCORE:
+				update_score(hist);
+				break;
 		}
 		// Drawing 
 		switch (current_screen) {
 			case Screen::GAMEPLAY:
 				draw_gameplay();
-				
 				break;
 			case Screen::START_MENU:
 				draw_menu();
 				break;
+			case Screen::DEFEAT:
+				draw_defeat();
+				break;
+			case Screen::SCORE:
+				draw_score(hist);
+				break;
 		}
+		total_menu_time += GetFrameTime(); 
+
+		// Music
+		play_music_based_on_screen(old_screen);
+
 	}
 
 	end_everything();
@@ -79,8 +102,12 @@ int main(int argc, char *argv[]) {
 
 void end_everything(){
 	end_gameplay();
-
+	fx_queue.clear();
 	end_sprites_gameplay();
 	UnloadRenderTexture(pixelated_screen);
 	UnloadFont(pixelify_sans);
+	UnloadTexture(background);
+	unload_music_and_sound();
+	CloseAudioDevice(); 
+	end_menu();
 }

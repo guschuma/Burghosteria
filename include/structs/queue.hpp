@@ -46,7 +46,7 @@ public:
 	void print();
 	Status_Queue update(float second_passed, Emotion &first_ghost_emotion);
 	void draw();
-	void decrease_all_patience();
+	bool decrease_all_patience();
 
 	void update_if_reached_destination(Node *aux, int number_queue);
 
@@ -54,6 +54,8 @@ public:
 	int get_first_order_id();
 
 	void make_first_leave(Emotion emotion);
+
+	bool is_empty() {return number_actual_clients == 0;}
 
 	int get_number_of_invisible_ghosts() { return number_actual_clients - number_visible_clients + (int)(number_visible_clients > 5);} // number_visible_clients inclui fantasma invisivel, ironicamente
 

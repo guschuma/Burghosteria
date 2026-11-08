@@ -6,7 +6,7 @@
 #include "raymath.h"
 
 #define INITIAL_GHOST_PATIENCE 30
-#define MAX_GHOST_PATIENCE 100
+#define MAX_GHOST_PATIENCE 90
 #define QUEUE_X_POS 103
 #define QUEUE_Y_POS 3
 
@@ -126,9 +126,9 @@ Status_Queue Client_Queue::update(float second_passed, Emotion &first_ghost_emot
 	return status_queue;
 }
 
-void Client_Queue::decrease_all_patience(){
+bool Client_Queue::decrease_all_patience(){ // True se algum fantasma saiu por falta de paciencia
 	Node *aux = first;
-
+	bool is_ghost_leaving_angry = false;
 	while(aux != nullptr){
 		aux->patience--;
 		if(aux->patience < 0.1 * MAX_GHOST_PATIENCE && aux->anim_state != LEAVING) {
@@ -137,11 +137,12 @@ void Client_Queue::decrease_all_patience(){
 		if(aux->patience == -1){
 			aux->anim_state = LEAVING;
 			aux->desired_pos = LEAVING_POS;
+			is_ghost_leaving_angry = true;
 		}
 		
 		aux = aux->next;
 	}
-
+	return is_ghost_leaving_angry;
 }
 
 void Client_Queue::draw(){

@@ -7,9 +7,9 @@
 #include "global.hpp"
 #define BOOK_COLOR TRANSPARENT
 #define SELECTED_BOOK_COLOR (Color){233, 123, 33, 50}
-#define CLICKED_BOOK_COLOR (Color){207, 139, 27, 50}
+#define CLICKED_BOOK_COLOR (Color){157, 99, 0, 100}
 
-#define START_NUM_FOOD_STOCK 10
+#define START_NUM_FOOD_STOCK 5
 #define START_NUM_NON_PERISH_NOT_PREP 5
 
 #define INITIAL_PLAYER_MONEY 1000

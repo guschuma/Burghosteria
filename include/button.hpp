@@ -49,7 +49,7 @@ public:
 	void set_text_at_id(std::string new_text, int id_b) { if(id_b < lin * col && id_b >= 0) buttons[id_b]->set_text(new_text);}
 	int id_of_button_held();
 	void update_blocked(int id_b, bool is_it) { if(id_b < lin * col && id_b >= 0) buttons[id_b]->is_blocked = is_it;}
-
+	void change_height(int button_id, int new_height);
 	void set_origin(Vector2 new_origin);
 
 	//void update_percentage_held(float new_perc_held, int button_id);
@@ -69,7 +69,6 @@ public:
 	int id_of_button_held();
 	void reset_all_text();// Seta texto para tudo zero
 	void set_text_value_at_ingred(int value, int ingred_id, int time_till_expire = -1);
-	void change_height(int button_id, int new_height);
 private:
 	
 };

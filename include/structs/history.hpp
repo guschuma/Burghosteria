@@ -3,7 +3,7 @@
 #include "log_timer.hpp"
 #include <string>
 
-#define MAX_NAME_SIZE 32
+#define MAX_NAME_SIZE 20
 // 3125 = 200000/64
 #define INITIAL_VEC_SIZE 4096
 
@@ -14,16 +14,20 @@ public:
 	void insert(const char new_name[], int new_score, bool insert_in_file = false);
 	void print();
 	void read_from_file();
-	void sort();
+	void sort(bool in_alphabetical = false);
 	std::string history_file_name;
+	char* get_name_at(int id);
+	int get_score_at(int id);
+	int get_current_size() { return current_size; }
 private:
 	struct Node {
-		char name[MAX_NAME_SIZE]; // ponteiro para vetor de tamanho max 32
+		char name[MAX_NAME_SIZE]; // ponteiro para vetor de tamanho max 20
 		int score;
 	};
 	int partition(int start_id, int end_id); // Particiona e retorna id do pivo
+	int partition_lexico(int start_id, int end_id);
 	void swap(int a_id, int b_id);
-	void sort(int start_id, int end_id);
+	void sort(int start_id, int end_id, bool in_alphabetical);
 	Node *cont_list;
 	int current_size = 0;
 	int max_size;
