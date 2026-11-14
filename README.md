@@ -1,8 +1,6 @@
-<img src="Burghosteria/assets/sprites/logo.png">
+<img src="assets/sprites/logo.png">: a Fantastic Burgueria Simulator by Gustavo S. F.
 
-# Burghosteria: a Fantastic Burgueria Simulator by Gustavo S. F.
-
-![A preview of the game](Burghosteria/sprites/video_preview.mp4)
+![A preview of the game](assets/sprites/video_preview.mp4)
 
 ## Description
 
@@ -31,5 +29,5 @@ Note: The PEDIDOS=pedidos.txt HIST=historico.txt is mandatory part of the activi
 The game runs on the C programming language with [Raylib](https://www.raylib.com/), a library made for graphical applications. 
 Advice from [ChatGPT](https://chatgpt.com) was used.
 For the sprites, I used the online pixel art editor [PixilArt](https://www.pixilart.com/).  
-The music was made using Ultrabox. You can find the links (and edit them yourself!) at [music.txt](Burghosteria/assets/music/music.txt).  
-Some sounds effects were made by me, but most of them are made by the people you can find [here](Burghosteria/assets/sounds/sounds.txt)
+The music was made using Ultrabox. You can find the links (and edit them yourself!) at [music.txt](assets/music/music.txt).  
+Some sounds effects were made by me, but most of them are made by the people you can find [here](assets/sounds/sounds.txt)
