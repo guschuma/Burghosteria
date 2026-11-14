@@ -13,15 +13,21 @@ Button menu_button((Rectangle){10, 60, 76, 15}, "teste", P_PURPLE_DARK, P_PURPLE
 Button_Matrix menu_buttons(menu_button, (Vector2){2, 2}, (Vector2){150, 100}, 4, 1);
 Texture2D menu_witch;
 Texture2D menu_burger;
+Texture2D logo;
+Texture2D tutorial;
 
-Vector2 menu_witch_pos = {-180, 200};
+Vector2 menu_witch_pos = {-600, 600};
 Vector2 menu_witch_dest = {0, 0};
+Vector2 menu_logo_pos = {600, -600};
+Vector2 menu_logo_dest = {600, -600};
+Vector2 menu_logo_shadow_pos = {600, -600};
 bool just_entered_menu = true;
 float time_till_burger_summoned = 0.0f;
 bool burger_summoned = false;
 bool leaving_menu = false;
 float leaving_menu_timer = 0.0f;
 Screen next_screen;
+unsigned char tutorial_fade = 0.0f;
 
 void init_menu(){
     menu_buttons.set_text_at_id("\t\t\t\t\tComeçar",    0);
@@ -31,6 +37,9 @@ void init_menu(){
 
     menu_witch = LoadTexture("assets/sprites/menu_witch.png");
     menu_burger = LoadTexture("assets/sprites/menu_burger.png");
+    logo = LoadTexture("assets/sprites/logo.png");
+    tutorial = LoadTexture("assets/sprites/tutorial.png");
+
 }
 
 void update_menu(){
@@ -56,6 +65,12 @@ void update_menu(){
             
         default: break;
     }
+    if(menu_buttons.id_of_button_held() == 2){
+        if(tutorial_fade != 255) tutorial_fade += 15;
+    }
+    else {
+        if(tutorial_fade != 0) tutorial_fade -= 15;
+    }
 
     if(leaving_menu){
         leaving_menu_timer += GetFrameTime();
@@ -67,6 +82,8 @@ void update_menu(){
             leaving_menu_timer = 0.0f;
         }
     }
+    float dt = GetFrameTime();
+    dt = fminf(dt, 1.0f / 15.0f);
 
     background_dest.y = 10 * sin(total_menu_time) + INTERNAL_HEIGHT * 0.3;
 	update_background_pos();
@@ -77,8 +94,14 @@ void update_menu(){
     menu_witch_dest = {0, 3.0f * cos(total_menu_time * 2.0f)};
 
     Vector2 witch_velocity = Vector2Subtract(menu_witch_dest, menu_witch_pos);
-    witch_velocity = Vector2Scale(witch_velocity, 3 * GetFrameTime());
+    witch_velocity = Vector2Scale(witch_velocity, 5 * dt);
     menu_witch_pos = Vector2Add(menu_witch_pos, witch_velocity);
+
+    menu_logo_dest = {130 +  3.0f * sin(total_menu_time * 3.0f), 30 +  5.0f * cos(total_menu_time * 4.0f)};
+    Vector2 logo_velocity = Vector2Subtract(menu_logo_dest, menu_logo_pos);
+    logo_velocity = Vector2Scale(logo_velocity, 3 * dt);
+    menu_logo_pos = Vector2Add(menu_logo_pos, logo_velocity);
+    menu_logo_shadow_pos = Vector2Add(menu_logo_pos, {3.0f * sin((total_menu_time - 0.5f) * 3.0f), 5.0f * cos((total_menu_time - 0.5f) * 4.0f)});
 
     if(!burger_summoned && time_till_burger_summoned < BURGER_SUMMON_ANIM_TIME_START) {
         time_till_burger_summoned += GetFrameTime();
@@ -93,6 +116,7 @@ void update_menu(){
             play_sound(summoning_s);
         }
     }
+   
 
     fx_queue.update();
 }
@@ -100,6 +124,8 @@ void update_menu(){
 void draw_menu(){
      if(just_entered_menu) {
         menu_witch_pos = {-600, 600};
+        menu_logo_pos = {600, -600};
+        menu_logo_shadow_pos = {600, -600};
         just_entered_menu = false;
         time_till_burger_summoned = 0.0f;
         burger_summoned = false;
@@ -125,7 +151,13 @@ void draw_menu(){
 
         Vector2 menu_burger_pos = {5.0f * cos(1.5f * total_menu_time), 5.0f * sin(2.0f * total_menu_time)};
         if(burger_summoned) DrawTexture(menu_burger, menu_burger_pos.x, menu_burger_pos.y, WHITE);
+        DrawTexture(logo, menu_logo_shadow_pos.x, menu_logo_shadow_pos.y, P_GREEN);
+        DrawTexture(logo, menu_logo_pos.x, menu_logo_pos.y, WHITE);
+       
         fx_queue.draw();
+        if(tutorial_fade != 0) {
+            DrawTexture(tutorial, 0, 0, {255, 255, 255, tutorial_fade});
+        }
         draw_cursor();
     EndTextureMode();
 
@@ -136,4 +168,6 @@ void draw_menu(){
 void end_menu(){
     UnloadTexture(menu_burger);
     UnloadTexture(menu_witch);
+    UnloadTexture(logo);
+    UnloadTexture(tutorial);
 }

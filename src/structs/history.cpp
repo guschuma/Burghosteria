@@ -75,7 +75,7 @@ void History::print(){
 void History::read_from_file(){
 	Timer tim;
 	timer_start(&tim);
-	int loaded_entries;
+	int loaded_entries = 0;
 
 	std::ifstream file(history_file_name);
 
@@ -110,6 +110,7 @@ void History::sort(bool in_alphabetical){
 	timer_start(&tim);
 	sort(0, current_size - 1, in_alphabetical);
 	timer_end(&tim, TIME_TO_QUICK_SORT);
+	add_one_to_measure(NUM_OF_QUICK_SORTS);
 	std::cout << "Tempo para quick sort:" << get_measure(TIME_TO_QUICK_SORT) << "\n\n";
 }
 void History::sort(int start_id, int end_id, bool in_alphabetical){ 

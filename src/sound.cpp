@@ -1,5 +1,6 @@
 #include "sound.hpp"
 #include "cstdlib"
+#include "screens/store.hpp"
 Music menu_music;
 Music gameplay_music;
 
@@ -19,9 +20,9 @@ Sound button_click;
 
 void load_music_and_sound(){
 	// Para portabilidade, talvez seja necessario converter para wav
-	menu_music = LoadMusicStream("assets/music/MenuSong.mp3");
+	menu_music = LoadMusicStream("assets/music/MenuSong.ogg");
 	SetMusicVolume(menu_music, 0.5);
-	gameplay_music = LoadMusicStream("assets/music/GameplayMusic.mp3");
+	gameplay_music = LoadMusicStream("assets/music/GameplayMusic.ogg");
 	SetMusicVolume(gameplay_music, 0.5);
 
 
@@ -105,19 +106,20 @@ void play_sound(SFX sound_fx){
 }
 
 void play_charge_in_pitch(float pitch){
+	if(in_shop) return;
 	if(IsSoundPlaying(charge)) return;
 	SetSoundPitch(charge, pitch); 
 	PlaySound(charge);
 }
 
-void play_music(Music music){
+void play_music(Music &music){
     if(!IsMusicStreamPlaying(music)) {
         PlayMusicStream(music);
     }
     UpdateMusicStream(music);
 }
 
-void restart_music(Music music){
+void restart_music(Music &music){
 	StopMusicStream(music);
     PlayMusicStream(music);
 }

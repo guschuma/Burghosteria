@@ -4,7 +4,7 @@
 #include "global.hpp" // Para definicao de errorcode
 
 #define MAX_LENGTH_RECIPE 8
-#define HASH_SIZE 1000
+#define HASH_SIZE 1009
 
 // Baseado em https://www.inf.ufrgs.br/~dgbalreira/ed/aula14/index.html
 //			  https://www.inf.ufrgs.br/~dgbalreira/ed/aula20/index.html

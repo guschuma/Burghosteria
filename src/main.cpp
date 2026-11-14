@@ -50,7 +50,7 @@ int main(int argc, char *argv[]) {
 
 	init_sprites_gameplay();
 	init_menu();
-	init_gameplay();
+
 	init_score(hist);
 
 	load_music_and_sound();
@@ -110,4 +110,6 @@ void end_everything(){
 	unload_music_and_sound();
 	CloseAudioDevice(); 
 	end_menu();
+
+	print_log();
 }

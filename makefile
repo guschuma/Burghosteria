@@ -4,7 +4,7 @@ SOURCE_LIBS = -Ilib/ -Iinclude
 CFILES = src/*.cpp src/screens/*.cpp src/structs/*.cpp
 
 # macOS
-OSX_OPT = -Llib/ -framework CoreVideo -framework IOKit -framework Cocoa -framework GLUT -framework OpenGL lib/libraylib.a -fsanitize=address
+OSX_OPT = -Llib/ -framework CoreVideo -framework IOKit -framework Cocoa -framework GLUT -framework OpenGL lib/libraylibMac.a -fsanitize=address
 OUTPUT = bin/build_osx
 
 build_osx:
@@ -15,7 +15,8 @@ run: build_osx
 
 # Linux
 LINUX_FLAGS = -fsanitize=address -fno-omit-frame-pointer
-LINUX_LIBS = -lraylib -lGL -lm -lX11 -lpthread -ldl -lrt
+LINUX_RAYLIB = lib/libraylib.a
+LINUX_LIBS = $(LINUX_RAYLIB) -lGL -lm -lX11 -lpthread -ldl -lrt
 LINUX_OUTPUT = bin/build_linux
 
 build_linux:

@@ -16,9 +16,9 @@ enum SFX {
 };
 
 
-void restart_music(Music music);
+void restart_music(Music &music);
 
-void play_music(Music music);
+void play_music(Music &music);
 void load_music_and_sound();
 
 void unload_music_and_sound();

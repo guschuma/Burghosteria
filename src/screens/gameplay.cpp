@@ -29,11 +29,14 @@ Texture2D lamp;
 Texture2D red_spawn_fx;
 Texture2D fire_sprite;
 
+Texture2D heart;
+
 
 double time_prep_spell_held = 0.0f;
 Button spell((Rectangle){121, 46, 28, 18}, "", BOOK_COLOR, SELECTED_BOOK_COLOR, CLICKED_BOOK_COLOR, -14);
 
 Spell_Matrix spells_matrix(spell, (Vector2){2, 2}, (Vector2){121, 46}, 6, 3);
+Button pause_button((Rectangle){INTERNAL_WIDTH * 0.5 - 38, 0.8 * INTERNAL_HEIGHT, 76, 15}, "\t\t\t\t\t\t\t\t\t\t\tSair", P_PURPLE_DARK, P_PURPLE, P_DARK, -36);
 
 int id_of_previous_button_held;
 bool ingred_is_being_summoned = false;
@@ -98,7 +101,7 @@ void init_gameplay(){
 	player_money_cents = 1000;
 	player_lifes = 3;
 	should_exit_gameplay = false;
-	leaving_anim_timer = 0.0f; // TODO: Adicionar animacao de entrada
+	leaving_anim_timer = 0.0f; 
 	
 	reset_numbers_food();
 	for(int i = 15; i <= 17; i++){
@@ -114,7 +117,7 @@ void init_gameplay(){
 	timer_till_ingred_spawn = 0.0f;
 	current_score = 0;
 	
-
+	number_of_ghosts_this_round = 1;
 	ghosts.clear();
 
 	ghosts.set_number_clients_round(number_of_ghosts_this_round);
@@ -136,6 +139,7 @@ void init_sprites_gameplay(){
 	burger.init_ingred_sprites();
 	red_spawn_fx = LoadTexture("assets/sprites/fx/red_spawn.png");
 	fire_sprite = LoadTexture("assets/sprites/fire.png");
+	heart = LoadTexture("assets/sprites/heart.png");
 	init_ghost_sprites();
 	fx_queue.load();
 	init_sprites_shop();
@@ -158,6 +162,7 @@ void end_sprites_gameplay(){
 	UnloadTexture(lamp);
 	UnloadTexture(red_spawn_fx);
 	UnloadTexture(fire_sprite);
+	UnloadTexture(heart);
 	burger.unload_sprites();
 	fx_queue.unload();
 }
@@ -190,6 +195,10 @@ void update_gameplay(){
 	
 
 	if(is_paused){ // Pausa
+		pause_button.update();
+		if(pause_button.is_released()){
+			should_exit_gameplay = true;
+		}
 		return;
 	}
 
@@ -208,12 +217,7 @@ void update_gameplay(){
 		}
 	}
 	burger.update();
-	//if(time_till_shop >= SHOP_TIME) {
-	//	time_till_shop = 0;
-	//	in_shop = true;
-	//	is_leaving_shop = false;
-	//	init_shop();
-	//}
+
 	if(second_passed >= 1) {
 		second_passed = 0;
 		root_perish_food();
@@ -226,10 +230,12 @@ void update_gameplay(){
 	if(ghosts.update(second_passed, first_ghost_emotion) == QUEUE_MOVED){
 		update_order();
 		if(first_ghost_emotion == ANGRY) {
+			
 			player_lifes--;
+			fx_queue.insert(red_spawn, {13.0f * player_lifes + 2 + 7, INTERNAL_HEIGHT - 7.0f});
+			play_sound(red_spawn_s);
 			std::cout << "Player lost life! Current: " << player_lifes << "\n\n";
 			should_exit_gameplay = (player_lifes == 0);
-			
 		}
 
 	}
@@ -239,12 +245,6 @@ void update_gameplay(){
 	
 	
 	update_spell_button_logic();
-
-	//if(IsKeyPressed(KEY_SPACE)){ Debug
-	//	in_shop = true;
-	//	is_leaving_shop = false;
-	//	init_shop();
-	//}
 }
 
 
@@ -275,7 +275,7 @@ void draw_gameplay(){
 		draw_order();
 
 		spells_matrix.draw();
-		if(time_prep_spell_held > 0) draw_ingred_being_summoned(id_of_previous_button_held, time_prep_spell_held);
+		if(time_prep_spell_held > 0 && !in_shop) draw_ingred_being_summoned(id_of_previous_button_held, time_prep_spell_held);
 		fx_queue.draw();
 		draw_ui();
 		if(in_shop){
@@ -283,8 +283,8 @@ void draw_gameplay(){
 		}
 		if(is_paused){
 			DrawRectangle(0, 0, INTERNAL_WIDTH, INTERNAL_HEIGHT, (Color){44, 27, 46, 200}); 
-			draw_cool_text_with_outline("Pausado", INTERNAL_WIDTH * 0.4, INTERNAL_HEIGHT * 0.5, P_CREAM);
-
+			draw_cool_text_with_outline("Pausado", INTERNAL_WIDTH * 0.4 + 7, INTERNAL_HEIGHT * 0.5, P_CREAM);
+			pause_button.draw();
 		}
 		draw_cursor();
 		
@@ -344,7 +344,7 @@ void draw_ui(){
 	draw_cool_text_with_outline(player_money.c_str(), 6, 2, P_CREAM);
 
 	std::string score = std::to_string(current_score);
-	draw_cool_text_with_outline(score.c_str(), INTERNAL_WIDTH - 20, 2, P_CREAM);
+	draw_cool_text_with_outline(score.c_str(), INTERNAL_WIDTH * 0.3 - 5, INTERNAL_HEIGHT - 15, P_CREAM);
 
 	int ghost_number = ghosts.get_number_of_invisible_ghosts();
 	if(ghost_number != 0) {
@@ -370,10 +370,11 @@ void draw_ui(){
 			draw_cool_text_with_outline((std::to_string(baco_heap_value) + "s").c_str(), 181, 147 + text_size*(i + 1), P_CREAM);
 	}
 
-	// Shop time ui
-	// Provavelmente nao usado TODO: remover
-	//DrawRectangleGradientV(0, INTERNAL_HEIGHT * (SHOP_TIME - time_till_shop) / SHOP_TIME, 4, INTERNAL_HEIGHT, GREEN, BLUE);
-
+	for(int i = 0; i < player_lifes; i++){
+		int heart_x_pos = 13 * i + 2;
+		int heart_y_pos = INTERNAL_HEIGHT - 13 + 2 * cos(2 * PI * second_passed + i); 
+		DrawTexture(heart, heart_x_pos, heart_y_pos, WHITE);
+	}
 }
 
 void reset_numbers_food(){ // Includes reseting spells_matrix
@@ -583,8 +584,6 @@ void draw_order(){  // Char time recipe = timer de animacao, comeca em -0.75
 		draw_cool_text(ingred_to_name(current_ingred, true).c_str(), order_x_pos, order_y_pos, P_DARK); 
 
 		DrawLine(order_x_pos, order_y_pos + 2, order_x_pos + RECIPE_WIDTH, order_y_pos + 2, P_MAUVE); // Desenha separacoes de linha entre igrendien
-		
-		//draw_cool_text((std::to_string(char_to_ingred(current_order[i]))).c_str(), ORDER_X_POS, ORDER_Y_POS + (MAX_LENGTH_RECIPE - cur_caracter) * ORDER_LINE_HEIGHT, BLACK); // TODO: mudar para mostarr nomes dos ingredientes
 
 	}
 	
@@ -594,9 +593,12 @@ void draw_order(){  // Char time recipe = timer de animacao, comeca em -0.75
 void update_order(){
 	if(ghosts.is_empty()){
 		ghosts.set_number_clients_round(++number_of_ghosts_this_round);
-		in_shop = true;
-		is_leaving_shop = false;
-		init_shop();
+		if(player_lifes != 1){ // Se for 1 player ja foi derrotado
+			in_shop = true;
+			is_leaving_shop = false;
+			init_shop();
+		}
+		
 	}
 	std::cout << "\n\nUpdated order!" << "\n";
 	current_order_id = ghosts.get_first_order_id();
@@ -621,7 +623,7 @@ void check_player_key_press(){
 		burger.print();
 		
 	}
-	if(IsKeyPressed(KEY_ENTER) && !burger.is_in_anim()){
+	if(IsKeyPressed(KEY_ENTER) && !burger.is_in_anim() && !in_middle_of_spawning_ingred){
 		Burger_Stack burg_order;
 		for(char ingred_char : current_order){
 			burg_order.insert_ingredient(char_to_ingred(ingred_char));
@@ -633,7 +635,7 @@ void check_player_key_press(){
 			current_score++;
 			fx_queue.insert(correct, {(float)burger_middle_x, 50});
 			play_sound(correct_s);
-			player_money_cents += burger.get_price();
+			player_money_cents += burger.get_price() * ((ghosts.get_first_patience() + 10) / 50.0f);
 		}
 		else {
 			ghosts.make_first_leave(ANGRY);

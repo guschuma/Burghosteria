@@ -35,9 +35,9 @@ void draw_defeat(){
 			username_shown[letter_count + 1] = '\0';
 		}
 		std::string score_text = "Pontuação: " + std::to_string(current_score);
-		draw_cool_text(score_text.c_str(), INTERNAL_WIDTH * 0.4, INTERNAL_HEIGHT * 0.2, P_TAN);
+		draw_cool_text(score_text.c_str(), INTERNAL_WIDTH * 0.4 - 5, INTERNAL_HEIGHT * 0.2, P_TAN);
 
-		draw_cool_text("Digite o seu nome: ", INTERNAL_WIDTH * 0.4, INTERNAL_HEIGHT * 0.3, P_TAN);
+		draw_cool_text("Digite o seu nome: ", INTERNAL_WIDTH * 0.4 - 16, INTERNAL_HEIGHT * 0.3, P_TAN);
 		draw_cool_text(username_shown, INTERNAL_WIDTH * 0.4, INTERNAL_HEIGHT * 0.4, P_CREAM);
         draw_cursor();
 
@@ -66,7 +66,7 @@ bool get_name(){
 	if (IsKeyPressed(KEY_BACKSPACE))
 	{
 		letter_count--;
-		if (letter_count < 0) letter_count = 0;
+		letter_count = std::max(letter_count, 0);
 		username[letter_count] = '\0';
 	}
 

@@ -4,6 +4,7 @@
 #include "global.hpp"
 #include <iostream> // TODO: remover 
 #include "button.hpp"
+#include <cmath>
 
 #define NUMBER_NAMES_PER_PAGE 16
 int current_page = 0;
@@ -48,8 +49,6 @@ void update_score(History &hist){
 	default: break;
 	}
 
-	if(current_page < 0) current_page = 0;
-
 	background_dest.y = 10 * sin(total_menu_time) + INTERNAL_HEIGHT * 0.65;
 	update_background_pos();
 	background_pos.x = total_menu_time;
@@ -63,14 +62,19 @@ void draw_score(History &hist){
 		draw_background();
 
         int current_size = hist.get_current_size();
-		if(current_page > current_size  / NUMBER_NAMES_PER_PAGE) current_page = current_size  / NUMBER_NAMES_PER_PAGE;
+		if(current_page < 0) {
+			current_page += current_size  / NUMBER_NAMES_PER_PAGE + 1;
+		}
+		else if(current_page > current_size / NUMBER_NAMES_PER_PAGE){
+			current_page -= current_size  / NUMBER_NAMES_PER_PAGE + 1;
+		}
 
 		for(int i = 0; i < NUMBER_NAMES_PER_PAGE; i++){
 			char *name = hist.get_name_at(i +  NUMBER_NAMES_PER_PAGE * current_page);
 			if(name == nullptr) break;
 			int score = hist.get_score_at(i + NUMBER_NAMES_PER_PAGE * current_page);
 
-			int x_offset = (int)(i % 2) * INTERNAL_WIDTH * 0.5;
+			int x_offset = (i % 2) * INTERNAL_WIDTH * 0.5;
 
 			draw_cool_text(name, 70 + x_offset, (i / 2) * 14, P_CREAM);
 			std::string score_text = std::to_string(score);

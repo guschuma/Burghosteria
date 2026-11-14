@@ -53,6 +53,8 @@ public:
 	void set_number_clients_round(int number_clients);
 	int get_first_order_id();
 
+	int get_first_patience(){if(number_visible_clients == 0) return 0; return first->patience;}
+
 	void make_first_leave(Emotion emotion);
 
 	bool is_empty() {return number_actual_clients == 0;}

@@ -40,8 +40,8 @@ void init_shop(){
 	update_stock_at_id(300, 1);
 	update_stock_at_id(400, 2);
 
-	update_stock_at_id(500, 3, 40);
-	update_stock_at_id(300, 4, 40);
+	update_stock_at_id(100, 3, 40);
+	update_stock_at_id(200, 4, 40);
 	update_stock_at_id(400, 5, 40);
 
 	witch_pos = {200, 190};
@@ -130,12 +130,12 @@ void update_stock_at_id(int price_cents, int id_stock, int time_to_expire){
 
 	std::string button_text;
 	switch(id_stock){
-		case 0: button_text = "+1 cheddar"; break;	// Espaço usado para centralizar texto. Bem feio mas funciona
-		case 1: button_text = "+1 cenoura"; break;
-		case 2: button_text = "+1 suico"; break;
+		case 0: button_text = "+1 asa"; break;
+		case 1: button_text = "+1 olho"; break;
+		case 2: button_text = "+1 gosma"; break;
 		case 3: button_text = "+1 carne"; break;
-		case 4: button_text = "+1 ovo"; break; // Espaço usado para centralizar texto. Bem feio mas funciona
-		case 5: button_text = "+1 bacon"; break;
+		case 4: button_text = "+1 ovo"; break;
+		case 5: button_text = "+1 cabel."; break;
 		default: 
 		return;
 	}
@@ -181,11 +181,11 @@ void shop_button_interaction(){
 		
 
 		case 3: meat_heap.insert(expiration_stock[0]);
-		update_stock_at_id(500, 3, 80); 
+		update_stock_at_id(200, 3, 80); 
 		
 		break; 
 		case 4: eggs_heap.insert(expiration_stock[1]);
-		update_stock_at_id(300, 4, 80); 
+		update_stock_at_id(200, 4, 80); 
 		
 		break;
 		case 5: baco_heap.insert(expiration_stock[2]);
