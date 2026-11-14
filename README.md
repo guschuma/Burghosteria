@@ -1,6 +1,8 @@
 <img src="assets/sprites/logo.png">: a Fantastic Burgueria Simulator by Gustavo S. F.
 
-https://github.com/user-attachments/assets/8199ecb6-97ea-4563-af78-ce1fce63fd1e
+
+https://github.com/user-attachments/assets/a4bead00-bca6-43d0-8ca0-693186149c0d
+
 
 ## Description
 
