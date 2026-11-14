@@ -1,4 +1,5 @@
-<img src="assets/sprites/logo.png">: Um Fantástico Simulador de Burgueria, por Gustavo S. F.
+<img width="510" height="150" alt="output-onlinepngtools(1)" src="https://github.com/user-attachments/assets/df0bc1fb-79ad-48b9-9919-be0a10b8b7bc" />
+## Um Fantástico Simulador de Burgueria, por Gustavo S. F.
 
 https://github.com/user-attachments/assets/a4bead00-bca6-43d0-8ca0-693186149c0d
 
@@ -24,7 +25,7 @@ Use seus feitiços para montar as pilhas de hambúrgueres de acordo com os pedid
 * Delete: Remover o ingrediente do topo (permanentemente).
 * Mouse (botão esquerdo ou direito): Todas as demais ações!
 
-## Como o jogo foi desenvolvido?
+<img width="900" height="540" alt="output-onlinepngtools" src="https://github.com/user-attachments/assets/7881dcef-7551-4e85-aedf-69017d164204" />
 
 ### Informações sobre os recursos utilizados
 
