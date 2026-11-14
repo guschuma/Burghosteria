@@ -1,4 +1,4 @@
-\<img src="assets/sprites/logo.png">: Um Fantástico Simulador de Burgueria, por Gustavo S. F.
+<img src="assets/sprites/logo.png">: Um Fantástico Simulador de Burgueria, por Gustavo S. F.
 
 https://github.com/user-attachments/assets/a4bead00-bca6-43d0-8ca0-693186149c0d
 
