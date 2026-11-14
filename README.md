@@ -1,35 +1,39 @@
-<img src="assets/sprites/logo.png">: a Fantastic Burgueria Simulator by Gustavo S. F.
-
+\<img src="assets/sprites/logo.png">: Um Fantástico Simulador de Burgueria, por Gustavo S. F.
 
 https://github.com/user-attachments/assets/a4bead00-bca6-43d0-8ca0-693186149c0d
 
+## Descrição
 
-## Description
+Este jogo foi desenvolvido para a disciplina de Estruturas de Dados da Universidade Federal do Rio Grande do Sul (*UFRGS*).
 
-This game was made for the Data Structures class at Universidade Federal do Rio Grande do Sul (*UFRGS*).  
-It's a simple burgueria simulator where you're a cook in charge of making some burguers for your valuable clients. But there's a catch! They're ghosts, and you're a witch!
-Use your spells to build the burguer stack based on the client's order, but be careful about your resources!
+É um simples simulador de uma hamburgueria, no qual você é um cozinheiro encarregado de preparar hambúrgueres para seus valiosos clientes. Mas há um detalhe: eles são fantasmas, e você é uma bruxa!
 
-## Executing the program
+Use seus feitiços para montar as pilhas de hambúrgueres de acordo com os pedidos dos clientes, mas tome cuidado com seus recursos!
 
-* On macOS, run the command `make run PEDIDOS=pedidos.txt HIST=historico.txt` on the terminal.
+## Executando o programa
 
-* On Linux, run the command `make run_linux PEDIDOS=pedidos.txt HIST=historico.txt` on the terminal.
+* No macOS, execute o comando `make run PEDIDOS=pedidos.txt HIST=historico.txt` no terminal.
 
-Note: The PEDIDOS=pedidos.txt HIST=historico.txt is mandatory part of the activity, but could be removed.
+* No Linux, execute o comando `make run_linux PEDIDOS=pedidos.txt HIST=historico.txt` no terminal.
 
-### Controls:
+**Nota:** Os argumentos `PEDIDOS=pedidos.txt` e `HIST=historico.txt` são obrigatórios para a atividade, mas podem ser removidos.
 
-* Enter: Finish order
-* Delete: Delete top ingrendient (permanently)
-* Mouse (left or right button): Everything else!
+### Controles
 
-## How was the game made?
+* Enter: Finalizar pedido.
+* Delete: Remover o ingrediente do topo (permanentemente).
+* Mouse (botão esquerdo ou direito): Todas as demais ações!
 
-### Resources info
+## Como o jogo foi desenvolvido?
 
-The game runs on the C programming language with [Raylib](https://www.raylib.com/), a library made for graphical applications. 
-Advice from [ChatGPT](https://chatgpt.com) was used.
-For the sprites, I used the online pixel art editor [PixilArt](https://www.pixilart.com/).  
-The music was made using Ultrabox. You can find the links (and edit them yourself!) at [music.txt](assets/music/music.txt).  
-Some sounds effects were made by me, but most of them are made by the people you can find [here](assets/sounds/sounds.txt)
+### Informações sobre os recursos utilizados
+
+O jogo foi desenvolvido na linguagem de programação C, utilizando a biblioteca [Raylib](https://www.raylib.com/), voltada para aplicações gráficas.
+
+Também foram utilizadas sugestões do [ChatGPT](https://chatgpt.com).
+
+Para criar os sprites, utilizei o editor de pixel art online [PixilArt](https://www.pixilart.com/).
+
+A música foi produzida utilizando o Ultrabox. Você pode encontrar os links (e editá-las por conta própria!) em [music.txt](assets/music/music.txt).
+
+Alguns efeitos sonoros foram feitos por mim, mas a maioria foi criada pelas pessoas cujos nomes e trabalhos podem ser encontrados [aqui](assets/sounds/sounds.txt).
