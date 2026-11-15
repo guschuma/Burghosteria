@@ -1,4 +1,5 @@
 <img width="510" height="150" alt="output-onlinepngtools(1)" src="https://github.com/user-attachments/assets/df0bc1fb-79ad-48b9-9919-be0a10b8b7bc" />
+
 # Um Fantástico Simulador de Burgueria, por Gustavo S. F.
 
 ![Preview do jogo em GIF](assets/ezgif-78198e280b67b604.gif)
